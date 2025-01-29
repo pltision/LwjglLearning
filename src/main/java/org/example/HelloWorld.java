@@ -91,11 +91,11 @@ public class HelloWorld {
 		glfwShowWindow(window);
 	}
 
-	static void ARGBToRGBA(int [] array){
-		for(int i=0,to=array.length;i<to;i++){
-			array[i]=(array[i]>>>24)|(array[i]<<8);
-		}
-	}
+//	static void ARGBToRGBA(int [] array){
+//		for(int i=0,to=array.length;i<to;i++){
+//			array[i]=(array[i]>>>24)|(array[i]<<8)/*|0xff*/;
+//		}
+//	}
 
 	private void loop() throws Throwable{
 		// This line is critical for LWJGL's interoperation with GLFW's
@@ -112,18 +112,25 @@ public class HelloWorld {
 		float[] matrixBuffer=new float[16];
 		double deg=0;
 
-		/*BufferedImage image= ImageIO.read(new File("test.png"));
+		BufferedImage image= ImageIO.read(new File("test.png"));
 		int[] imageBuffer=new int[image.getWidth()*image.getHeight()];
 		image.getRGB(0,0,image.getWidth(),image.getHeight(),imageBuffer,0,image.getWidth());
-		ARGBToRGBA(imageBuffer);
+//		ARGBToRGBA(imageBuffer);
+
+//		int[] imageBuffer=new int[]{
+//				0xff000000,0xffff00ff,
+//				0xffff00ff,0x00000000,
+//		};
 
 		int textureHolder=glGenTextures();
 		glBindTexture(GL_TEXTURE_2D,textureHolder);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+//		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+//		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,image.getWidth(),image.getHeight(),0,GL_RGBA,GL_INT,imageBuffer);*/
+		glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,image.getWidth(),image.getHeight(),0,GL_RGBA,GL_UNSIGNED_BYTE,imageBuffer);
+
+		glEnable(GL_TEXTURE_2D);
 
 		// Run the rendering loop until the user has attempted to close
 		// the window or has pressed the ESCAPE key.
@@ -134,16 +141,21 @@ public class HelloWorld {
 			matrix4f.get(matrixBuffer);
 			glMultMatrixf(matrixBuffer);
 
+			glBindTexture(GL_TEXTURE_2D,textureHolder);
+
 			glBegin(GL_TRIANGLES);
 
+//			glColor3f(1,0,0);
+			glTexCoord2f(0,0);
 			glVertex2d(cos(deg),sin(deg));
-			glColor3f(1,0,0);
 
+//			glColor3f(0,1,0);
+			glTexCoord2f(0,1);
 			glVertex2d(cos(deg+2*PI/3),sin(deg+2*PI/3));
-			glColor3f(0,1,0);
 
+//			glColor3f(0,0,1);
+			glTexCoord2f(1,0);
 			glVertex2d(cos(deg+4*PI/3),sin(deg+4*PI/3));
-			glColor3f(0,0,1);
 
 			glEnd();
 
