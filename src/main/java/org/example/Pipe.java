@@ -1,24 +1,30 @@
 package org.example;
 
 import org.joml.Matrix4f;
-import org.lwjgl.*;
-import org.lwjgl.glfw.*;
-import org.lwjgl.opengl.*;
-import org.lwjgl.system.*;
+import org.lwjgl.Version;
+import org.lwjgl.glfw.GLFWErrorCallback;
+import org.lwjgl.glfw.GLFWVidMode;
+import org.lwjgl.opengl.GL;
+import org.lwjgl.system.MemoryStack;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.nio.*;
+import java.io.*;
+import java.nio.IntBuffer;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import static java.lang.Math.*;
-import static org.lwjgl.glfw.Callbacks.*;
+import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.system.MemoryStack.*;
-import static org.lwjgl.system.MemoryUtil.*;
+import static org.lwjgl.opengl.GL15.*;
+import static org.lwjgl.opengl.GL20.*;
+import static org.lwjgl.opengl.GL30.*;
+import static org.lwjgl.system.MemoryStack.stackPush;
+import static org.lwjgl.system.MemoryUtil.NULL;
 
-public class HelloWorld {
+public class Pipe {
 
 	// The window handle
 	private long window;
@@ -97,6 +103,17 @@ public class HelloWorld {
 //		}
 //	}
 
+	public static void bindShader(int shader,String path) throws IOException {
+		glShaderSource(shader,new String(Files.readAllBytes(Paths.get(path))));
+		glCompileShader(shader);
+
+		int[] isSuccess={0};
+		glGetShaderiv(shader, GL_COMPILE_STATUS, isSuccess);
+		if (isSuccess[0] == 0) {
+			throw new RuntimeException(glGetShaderInfoLog(shader));
+		}
+	}
+
 	private void loop() throws Throwable{
 		// This line is critical for LWJGL's interoperation with GLFW's
 		// OpenGL context, or any context that is managed externally.
@@ -106,11 +123,11 @@ public class HelloWorld {
 		GL.createCapabilities();
 
 		// Set the clear color
-		glClearColor(1f, 1f, 1f, 0.0f);
+		glClearColor(0.0f, 0.125f, 0.25f, 0.0f);
 
 		Matrix4f matrix4f=new Matrix4f();
 		float[] matrixBuffer=new float[16];
-		double deg=0;
+		float deg=0;
 
 		BufferedImage image= ImageIO.read(new File("temp/test.png"));
 		int[] imageBuffer=new int[image.getWidth()*image.getHeight()];
@@ -132,48 +149,81 @@ public class HelloWorld {
 
 		glEnable(GL_TEXTURE_2D);
 
+
+		float[] vertexes={
+                (float) sin(2*PI/3), (float) cos(2*PI/3),0, 1,1,0,
+                (float) sin(2*PI/3*2), (float) cos(2*PI/3*2),0, 0,1,1,
+                (float) sin(0), (float) cos(0),0, 1,0,1
+		};
+
+		int vbo=glGenBuffers();
+		int vao=glGenVertexArrays();
+
+		glBindVertexArray(vao);
+
+		glBindBuffer(GL_ARRAY_BUFFER,vbo);
+		glBufferData(GL_ARRAY_BUFFER,vertexes,GL_STATIC_DRAW);
+
+		glVertexAttribPointer(0,3,GL_FLOAT,false,6*4,0);
+		glEnableVertexAttribArray(0);
+
+		glVertexAttribPointer(1,3,GL_FLOAT,false,6*4,3*4);
+		glEnableVertexAttribArray(1);
+
+		int vertexShader=glCreateShader(GL_VERTEX_SHADER);
+		bindShader(vertexShader,"temp/vertex_shader.glsl");
+
+		int fragmentShader=glCreateShader(GL_FRAGMENT_SHADER);
+		bindShader(fragmentShader,"temp/fragment_shader.glsl");
+
+		int shaderProgram=glCreateProgram();
+		glAttachShader(shaderProgram,vertexShader);
+		glAttachShader(shaderProgram,fragmentShader);
+		glLinkProgram(shaderProgram);
+
+		glDeleteShader(vertexShader);
+		glDeleteShader(fragmentShader);
+
 		// Run the rendering loop until the user has attempted to close
 		// the window or has pressed the ESCAPE key.
 		while ( !glfwWindowShouldClose(window) ) {
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer.
 
 			glPushMatrix();
+
 			matrix4f.get(matrixBuffer);
-			glMultMatrixf(matrixBuffer);
+//			glMultMatrixf(matrixBuffer);
+			glRotatef(0,0,0,deg);	//不知为何矩阵和旋转都不起作用
 
-			glBindTexture(GL_TEXTURE_2D,textureHolder);
+//			glBindTexture(GL_TEXTURE_2D,textureHolder);
 
-			glBegin(GL_TRIANGLES);
-
-			glColor3f(0,1,1);
-			glTexCoord2f(0,0);
-			glVertex2d(cos(deg),sin(deg));
-
-			glColor3f(1,1,0);
-			glTexCoord2f(0,1);
-			glVertex2d(cos(deg+2*PI/3),sin(deg+2*PI/3));
-
-			glColor3f(1,0,1);
-			glTexCoord2f(1,0);
-			glVertex2d(cos(deg+4*PI/3),sin(deg+4*PI/3));
-
-			glEnd();
-
-			glPopMatrix();
+//			if(deg%20>5) {
+				glUseProgram(shaderProgram);
+				glBindVertexArray(vao);
+				glDrawArrays(GL_TRIANGLES, 0, 3);
+				glBindVertexArray(0);
+//			}
 
 			glfwSwapBuffers(window); // swap the color buffers
 
-			deg+=0.01;
-			matrix4f.rotateY(0.01f);
+			glPopMatrix();
+			matrix4f.rotateY(1f);
+			deg+=1;
 
 			// Poll for window events. The key callback above will only be
 			// invoked during this call.
 			glfwPollEvents();
 		}
+
+
+		glDeleteVertexArrays(vao);
+		glDeleteBuffers(vbo);
+		glDeleteProgram(shaderProgram);
 	}
 
 	public static void main(String[] args) throws Throwable{
-		new HelloWorld().run();
+		new Pipe().run();
 	}
+
 
 }
