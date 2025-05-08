@@ -171,10 +171,10 @@ public class Pipe {
 		glEnableVertexAttribArray(1);
 
 		int vertexShader=glCreateShader(GL_VERTEX_SHADER);
-		bindShader(vertexShader,"temp/vertex_shader.glsl");
+		bindShader(vertexShader,"temp/texture.vs.glsl");
 
 		int fragmentShader=glCreateShader(GL_FRAGMENT_SHADER);
-		bindShader(fragmentShader,"temp/fragment_shader.glsl");
+		bindShader(fragmentShader,"temp/texture.fs.glsl");
 
 		int shaderProgram=glCreateProgram();
 		glAttachShader(shaderProgram,vertexShader);

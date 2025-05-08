@@ -15,7 +15,7 @@ public class VertexBuffer implements GLObject{
 
     @Override
     public void delete() {
-        glDeleteVertexArrays(vertexBuffer);
+        glDeleteBuffers(vertexBuffer);
     }
 
     public void bind(){

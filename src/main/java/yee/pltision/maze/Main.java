@@ -1,9 +1,11 @@
 package yee.pltision.maze;
 
+import org.joml.Matrix4f;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
+import yee.pltision.glfmhelper.shape.SimpleSquare;
 import yee.pltision.glfmhelper.shape.SimpleTriangle;
 
 import java.io.IOException;
@@ -21,7 +23,7 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 public class Main {
 
     long window;
-    SimpleTriangle simpleTriangle;
+    SimpleSquare shape;
     public static void main(String[] args) throws IOException {
         Main app=new Main();
         app.init();
@@ -82,24 +84,26 @@ public class Main {
 
 
     }
+    Matrix4f matrix4f=new Matrix4f();
+    float[] buffer=new float[16];
 
     void windowLoop() throws IOException {
 
         GL.createCapabilities();
 
-        simpleTriangle=new SimpleTriangle();
-        simpleTriangle.init();
+        shape =new SimpleSquare();
+        shape.init();
 
         glEnable(GL_TEXTURE_2D);
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_BLEND);
 
-        glClearColor(0.2f, 0.3f, 0.4f, 1.0f);
+        glClearColor(1, 1, 1, 1.0f);
 
         while (!glfwWindowShouldClose(window)){
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-            simpleTriangle.render();
+            shape.render();
 
             glfwSwapBuffers(window); // swap the color buffers
             glfwPollEvents();

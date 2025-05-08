@@ -1,20 +1,21 @@
 package yee.pltision.glfmhelper.shape;
 
+import org.joml.Matrix2f;
 import org.joml.Matrix4f;
+import org.joml.Vector2f;
 import org.lwjgl.system.MemoryUtil;
 import yee.pltision.glfmhelper.globject.*;
 
 import java.io.IOException;
 import java.nio.FloatBuffer;
 
-import static org.lwjgl.opengl.GL15.GL_LINES;
 import static org.lwjgl.opengl.GL15.glDrawArrays;
 import static org.lwjgl.opengl.GL20.*;
 import static org.lwjgl.opengl.GL20C.glGetUniformLocation;
 import static org.lwjgl.opengl.GL20C.glUniform1i;
 import static yee.pltision.glfmhelper.globject.VertexProperties.*;
 
-public class SimpleTriangle {
+public class SimpleSquare {
 
     VertexPackage vertexPackage;
     ShaderProgram program;
@@ -28,10 +29,13 @@ public class SimpleTriangle {
             VertexProperties properties=new VertexProperties(pos(),uv(),rgba());
             FloatBuffer buf = MemoryUtil.memAllocFloat(properties.floatSizeOf(3));
 
-            for(int i=0;i<3;i++){
-                buf.put((float) Math.sin(i * 2 / 3d * Math.PI)).put((float) Math.cos(i * 2 / 3d * Math.PI)).put(0);
-                buf.put((1+(float) Math.sin(i * 2 / 3d * Math.PI))/2).put(-(1+(float) Math.cos(i * 2 / 3d * Math.PI))/2);
+            Matrix2f matrix2f=new Matrix2f().rotate((float) (Math.PI/2));
+            Vector2f vector2f=new Vector2f(1,1);
+            for(int i=0;i<4;i++){
+                buf.put(vector2f.x).put(vector2f.y).put(0);
+                buf.put(-(vector2f.x+1)/2).put((vector2f.y+1)/2);
                 buf.put(1).put(1).put(1).put(1);
+                vector2f.mul(matrix2f);
             }
             buf.flip();
 
@@ -63,7 +67,7 @@ public class SimpleTriangle {
         vertexPackage.bind();
         texture.bind();
         glUniformMatrix4fv(matrixUniform,false, matrix4f.get(buffer));
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        glDrawArrays(GL_QUADS, 0, 4);
         matrix4f.rotateZ(0.001f);
 //        System.out.println(matrix4f);
     }

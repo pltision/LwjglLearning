@@ -9,8 +9,8 @@ uniform sampler2D textureSampler;
 out vec4 outColor;
 
 void main(){
-    vec4 color=fragmentColor *texture(textureSampler,fragmentUV);
-    if(color.a==0) discard;
-    outColor=color;
+    outColor=fragmentColor *texture(textureSampler,fragmentUV);
+    if(outColor.a==0) discard;
+//    outColor=color;
 //    outColor=vec4(1,1,1,1);
 }
