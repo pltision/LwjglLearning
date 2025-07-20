@@ -1,30 +1,42 @@
-package yee.pltision.maze;
+package yee.pltision.destroyer;
 
 import org.joml.Matrix4f;
+import org.joml.Vector2f;
+import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
-import yee.pltision.glfmhelper.example.SimpleSquare;
+import org.lwjgl.system.MemoryUtil;
+import yee.pltision.game.client.resource.Shaders;
+import yee.pltision.game.client.resource.Textures;
+import yee.pltision.glfmhelper.globject.PackedVertexBuffer;
+import yee.pltision.glfmhelper.globject.ShaderProgram;
+import yee.pltision.glfmhelper.globject.Texture;
+import yee.pltision.glfmhelper.shape.ShapeRecord;
+import yee.pltision.glfmhelper.shape.D3Shapes;
+import yee.pltision.glfmhelper.shape.UvGetters;
 
 import java.io.IOException;
+import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
 import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.glfw.GLFW.glfwPollEvents;
+import static org.lwjgl.opengl.GL11.GL_QUADS;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
 import static org.lwjgl.opengl.GL11.glEnable;
 import static org.lwjgl.opengl.GL11C.*;
-import static org.lwjgl.opengl.GL11C.GL_DEPTH_BUFFER_BIT;
+import static org.lwjgl.opengl.GL20.glUniformMatrix4fv;
+import static org.lwjgl.opengl.GL20C.glGetUniformLocation;
 import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
-public class Main {
+public class Destroyer {
 
     long window;
-    SimpleSquare shape;
+
     public static void main(String[] args) throws IOException {
-        Main app=new Main();
+        Destroyer app=new Destroyer();
         app.init();
         app.windowLoop();
     }
@@ -44,7 +56,7 @@ public class Main {
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE); // the window will be resizable
 
         // Create the window
-        window = glfwCreateWindow(300, 300, "Hello World!", NULL, NULL);
+        window = glfwCreateWindow(1000, 1000, "Hello World!", NULL, NULL);
         if ( window == NULL )
             throw new RuntimeException("Failed to create the GLFW window");
 
@@ -83,26 +95,52 @@ public class Main {
 
 
     }
+    ShapeRecord renderHelper;
     Matrix4f matrix4f=new Matrix4f();
     float[] buffer=new float[16];
+    int matrixUniform;
 
-    void windowLoop() throws IOException {
+    void windowLoop(){
 
         GL.createCapabilities();
 
-        shape =new SimpleSquare();
-        shape.init();
+        Texture texture= Textures.readTexture("毁灭者模拟器/毁灭者.png");
+
+        {
+            ShaderProgram shader;
+            PackedVertexBuffer shape;
+            shader = Shaders.TEXTURE_SHADER;
+            matrixUniform = glGetUniformLocation(shader.getShaderProgram(), "transform");
+
+            float size = 0.05f;
+            shape = D3Shapes.cuboid(
+                    new Vector3f(-size, -size, -size),
+                    new Vector3f(size, size, size),
+                    UvGetters.cubeFaces(new Vector2f(0, 0), new Vector2f(16 / 128f, 16 / 128f))
+//                UvGetters.allSameSquare(new Vector2f(0,0),new Vector2f(16/128f,16/128f))
+            );
+
+            renderHelper = new ShapeRecord(shape, GL_QUADS, 0, 4 * 6, shader);
+        }
 
         glEnable(GL_TEXTURE_2D);
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_BLEND);
 
-        glClearColor(1, 1, 1, 1.0f);
+        glClearColor(0, 0, 0, 1.0f);
 
         while (!glfwWindowShouldClose(window)){
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-            shape.render();
+//            glUniformMatrix4fv(matrixUniform,false, matrix4f.get(buffer));
+            texture.bind();
+
+            FloatBuffer buffer = MemoryUtil.memAllocFloat(4 * 4);
+            glUniformMatrix4fv(matrixUniform, false, matrix4f.get(buffer));
+            MemoryUtil.memFree(buffer);
+
+            matrix4f.rotateY(0.0002f);
+            matrix4f.rotateX(0.0001f);
 
             glfwSwapBuffers(window); // swap the color buffers
             glfwPollEvents();

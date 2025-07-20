@@ -13,7 +13,7 @@ public class HashHelper {
     }
 
     public HashHelper(long seed){
-        //²»¹Ü0µÄÎÊÌâ£¬ÕâÊÇ¸öÌØĞÔ
+        //ä¸ç®¡0çš„é—®é¢˜ï¼Œè¿™æ˜¯ä¸ªç‰¹æ€§
         xor=7080874202222568533L*seed;
         mul=6531603239788631109L*seed;
     }

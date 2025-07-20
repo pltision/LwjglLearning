@@ -1,38 +1,31 @@
-package yee.pltision.maze.shape;
+package yee.pltision.glfmhelper.shape;
 
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector2f;
-import org.joml.Vector2i;
 import org.joml.Vector3f;
-import org.lwjgl.system.MemoryUtil;
-import yee.pltision.glfmhelper.globject.VertexPackage;
-import yee.pltision.glfmhelper.globject.VertexProperties;
-
-import java.nio.FloatBuffer;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Function;
 
-import static yee.pltision.glfmhelper.globject.VertexProperties.*;
-
-public interface Shapes {
+public interface D3Shapes {
     /**
      * 根据传入的向量创建长方体
      * @param from  长方体的一个角
      * @param to    长方体的对角
      * @param uvGetter  根据顶点序号获取uv
-     * @return  一个长方体顶点包
+     * @return  一个包含长方体顶点数据的List<PosUvVertex>
      */
-    static VertexPackage cuboid(Vector3f from, Vector3f to, Function<Integer, Vector2f> uvGetter) {
-        VertexProperties properties = new VertexProperties(pos(), uv(), rgba());
-        FloatBuffer buf = MemoryUtil.memAllocFloat(properties.floatSizeOf(4 * 6));
+    static List<PosUvVertex> cuboid(Vector3f from, Vector3f to, Function<Integer, Vector2f> uvGetter) {
+        List<PosUvVertex> vertices = new ArrayList<>(6*4);
 
-        Vector3f[] vertices = createCuboidVertex(from, to);
+        Vector3f[] vertexArray = createCuboidVertex(from, to);
 
         // 定义6个面的顶点索引（每个面4个顶点，按顺时针顺序）
         int[][] faces = {
-                {0, 1, 2, 3}, // 前面
+                {0, 1, 2, 3}, // 前面     -x-y +x-y +x+y -x+y
+                {1, 5, 6, 2}, // 右面
                 {5, 4, 7, 6}, // 后面
                 {4, 0, 3, 7}, // 左面
-                {1, 5, 6, 2}, // 右面
                 {3, 2, 6, 7}, // 上面
                 {4, 5, 1, 0}  // 下面
         };
@@ -41,22 +34,11 @@ public interface Shapes {
         for (int face = 0; face < 6; face++) {
             for (int vertex = 0; vertex < 4; vertex++) {
                 int vertexIndex = faces[face][vertex];
-                Vector3f pos = vertices[vertexIndex];
-
-                // 添加位置坐标 (x, y, z)
-                buf.put(pos.x).put(pos.y).put(pos.z);
-
-                // 添加UV坐标 (u, v)
-                Vector2f uv = uvGetter.apply(face * 4 + vertex);
-                buf.put(uv.x).put(uv.y);
-
-                // 添加颜色值 (r, g, b, a) - 这里设为白色不透明
-                buf.put(1.0f).put(1.0f).put(1.0f).put(1.0f);
+                vertices.add(new PosUvVertex(vertexArray[vertexIndex]/*Immutable*/, uvGetter.apply(face * 4 + vertex)));
             }
         }
 
-        buf.flip();
-        return VertexPackage.createAndFree(properties, buf);
+        return vertices;
     }
 
     @NotNull
@@ -80,6 +62,4 @@ public interface Shapes {
                 new Vector3f(minX, maxY, maxZ)  // 7
         };
     }
-
-
 }

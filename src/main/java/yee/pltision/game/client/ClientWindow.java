@@ -1,30 +1,32 @@
-package yee.pltision.maze;
+package yee.pltision.game.client;
 
-import org.joml.Matrix4f;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
-import yee.pltision.glfmhelper.example.SimpleSquare;
 
 import java.io.IOException;
 import java.nio.IntBuffer;
 
 import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.glfw.GLFW.glfwPollEvents;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
 import static org.lwjgl.opengl.GL11.glEnable;
-import static org.lwjgl.opengl.GL11C.*;
+import static org.lwjgl.opengl.GL11C.GL_BLEND;
+import static org.lwjgl.opengl.GL11C.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11C.GL_DEPTH_BUFFER_BIT;
+import static org.lwjgl.opengl.GL11C.GL_DEPTH_TEST;
+import static org.lwjgl.opengl.GL11C.glClear;
+import static org.lwjgl.opengl.GL11C.glClearColor;
+import static org.lwjgl.opengl.GL20C.glGetUniformLocation;
 import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
-public class Main {
+public class ClientWindow {
 
     long window;
-    SimpleSquare shape;
+
     public static void main(String[] args) throws IOException {
-        Main app=new Main();
+        ClientWindow app=new ClientWindow();
         app.init();
         app.windowLoop();
     }
@@ -44,7 +46,7 @@ public class Main {
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE); // the window will be resizable
 
         // Create the window
-        window = glfwCreateWindow(300, 300, "Hello World!", NULL, NULL);
+        window = glfwCreateWindow(1000, 1000, "Hello World!", NULL, NULL);
         if ( window == NULL )
             throw new RuntimeException("Failed to create the GLFW window");
 
@@ -83,26 +85,21 @@ public class Main {
 
 
     }
-    Matrix4f matrix4f=new Matrix4f();
-    float[] buffer=new float[16];
 
-    void windowLoop() throws IOException {
+    void windowLoop(){
 
         GL.createCapabilities();
 
-        shape =new SimpleSquare();
-        shape.init();
+
 
         glEnable(GL_TEXTURE_2D);
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_BLEND);
 
-        glClearColor(1, 1, 1, 1.0f);
+        glClearColor(0, 0, 0, 1.0f);
 
         while (!glfwWindowShouldClose(window)){
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-            shape.render();
 
             glfwSwapBuffers(window); // swap the color buffers
             glfwPollEvents();

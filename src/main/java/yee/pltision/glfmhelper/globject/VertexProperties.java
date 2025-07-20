@@ -25,6 +25,10 @@ public class VertexProperties {
         this.floatSize = computeFloatSize(elements);
     }
 
+    public static VertexProperties posUvRgba(){
+        return new VertexProperties(pos(),uv(),rgba());
+    }
+
     public int floatSizeOf(int vertexCount){
         if(floatSize<0)
             throw new UnsupportedOperationException("Element are not all are float!");
@@ -41,6 +45,7 @@ public class VertexProperties {
             sum += element.count * element.type.size;
         return sum;
     }
+
     public static int computeFloatSize(Element[] elements){
         int sum=0;
         for (Element element : elements) {

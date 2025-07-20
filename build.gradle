@@ -17,6 +17,7 @@ project.ext.lwjglNatives = "natives-windows"
 
 project.ext.jomlVersion = "1.10.8"
 
+
 dependencies {
     testImplementation platform('org.junit:junit-bom:5.9.1')
     testImplementation 'org.junit.jupiter:junit-jupiter'

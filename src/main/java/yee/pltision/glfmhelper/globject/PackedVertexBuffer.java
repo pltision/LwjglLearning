@@ -7,7 +7,7 @@ import java.nio.FloatBuffer;
 
 import static org.lwjgl.opengl.GL30.*;
 
-public class VertexPackage implements GLObject {
+public class PackedVertexBuffer implements GLObject {
     int vertexBuffer;
     int vertexArray;
 
@@ -19,31 +19,31 @@ public class VertexPackage implements GLObject {
         return vertexArray;
     }
 
-    public VertexPackage(int vertexBuffer, int vertexArray){
+    public PackedVertexBuffer(int vertexBuffer, int vertexArray){
         this.vertexArray=vertexArray;
         this.vertexBuffer =vertexBuffer;
     }
 
-    public static VertexPackage create(VertexProperties properties, ByteBuffer buf){
-        VertexPackage vertexes=new VertexPackage(glGenBuffers(),glGenVertexArrays());
+    public static PackedVertexBuffer create(VertexProperties properties, ByteBuffer buf){
+        PackedVertexBuffer vertexes=new PackedVertexBuffer(glGenBuffers(),glGenVertexArrays());
         glBindBuffer(GL_ARRAY_BUFFER,vertexes.vertexBuffer);
         glBufferData(GL_ARRAY_BUFFER,buf,GL_STATIC_DRAW);
         vertexes.apply(properties);
         return vertexes;
     }
 
-    public static VertexPackage create(VertexProperties properties, FloatBuffer buf){
-        VertexPackage vertexes=new VertexPackage(glGenBuffers(),glGenVertexArrays());
+    public static PackedVertexBuffer create(VertexProperties properties, FloatBuffer buf){
+        PackedVertexBuffer vertexes=new PackedVertexBuffer(glGenBuffers(),glGenVertexArrays());
         glBindBuffer(GL_ARRAY_BUFFER,vertexes.vertexBuffer);
         glBufferData(GL_ARRAY_BUFFER,buf,GL_STATIC_DRAW);
         vertexes.apply(properties);
         return vertexes;
     }
 
-    public static VertexPackage createAndFree(VertexProperties properties, FloatBuffer buf){
-        VertexPackage vertexPackage=create(properties,buf);
+    public static PackedVertexBuffer createAndFree(VertexProperties properties, FloatBuffer buf){
+        PackedVertexBuffer packedVertexBuffer =create(properties,buf);
         MemoryUtil.memFree(buf);
-        return vertexPackage;
+        return packedVertexBuffer;
     }
 
     public void apply(VertexProperties properties){

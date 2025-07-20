@@ -1,4 +1,4 @@
-package yee.pltision.glfmhelper.shape;
+package yee.pltision.glfmhelper.example;
 
 import org.joml.Matrix4f;
 import org.lwjgl.system.MemoryUtil;
@@ -7,7 +7,6 @@ import yee.pltision.glfmhelper.globject.*;
 import java.io.IOException;
 import java.nio.FloatBuffer;
 
-import static org.lwjgl.opengl.GL15.GL_LINES;
 import static org.lwjgl.opengl.GL15.glDrawArrays;
 import static org.lwjgl.opengl.GL20.*;
 import static org.lwjgl.opengl.GL20C.glGetUniformLocation;
@@ -16,7 +15,7 @@ import static yee.pltision.glfmhelper.globject.VertexProperties.*;
 
 public class SimpleTriangle {
 
-    VertexPackage vertexPackage;
+    PackedVertexBuffer packedVertexBuffer;
     ShaderProgram program;
     Texture texture;
 
@@ -35,7 +34,7 @@ public class SimpleTriangle {
             }
             buf.flip();
 
-            vertexPackage=VertexPackage.create(properties,buf);
+            packedVertexBuffer = PackedVertexBuffer.create(properties,buf);
 
             MemoryUtil.memFree(buf);
 
@@ -47,7 +46,7 @@ public class SimpleTriangle {
         );
         matrixUniform = glGetUniformLocation(program.getShaderProgram(), "transform");
 
-        texture=Texture.read("maze/test_image.png");
+        texture=Texture.read("测试图片.png");
 
         textureUniform = glGetUniformLocation(program.getShaderProgram(), "textureSampler");
         glUniform1i(textureUniform, 0);
@@ -60,7 +59,7 @@ public class SimpleTriangle {
 
     public void render(){
         program.use();
-        vertexPackage.bind();
+        packedVertexBuffer.bind();
         texture.bind();
         glUniformMatrix4fv(matrixUniform,false, matrix4f.get(buffer));
         glDrawArrays(GL_TRIANGLES, 0, 3);
@@ -69,7 +68,7 @@ public class SimpleTriangle {
     }
 
     public void delete(){
-        vertexPackage.delete();
+        packedVertexBuffer.delete();
         program.delete();
         texture.delete();
     }

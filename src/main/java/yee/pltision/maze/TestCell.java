@@ -2,11 +2,10 @@ package yee.pltision.maze;
 
 import org.joml.Vector2f;
 import org.joml.Vector3f;
-import yee.pltision.glfmhelper.globject.VertexPackage;
-import yee.pltision.maze.shape.Shapes;
-import yee.pltision.maze.shape.UvGetters;
+import yee.pltision.glfmhelper.globject.PackedVertexBuffer;
+import yee.pltision.glfmhelper.shape.D3Shapes;
+import yee.pltision.glfmhelper.shape.UvGetters;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 
@@ -20,10 +19,10 @@ public class TestCell implements Cell {
 
         pieces.add(
                 () -> new PieceRenderer() {
-                    VertexPackage vertexPackage= Shapes.cuboid(new Vector3f(-1,-1,-1),new Vector3f(1,1,1), UvGetters.square(new Vector2f(0,0),new Vector2f(1/4f,1/4f)));
+                    PackedVertexBuffer packedVertexBuffer = D3Shapes.cuboid(new Vector3f(-1,-1,-1),new Vector3f(1,1,1), UvGetters.quads(new Vector2f(0,0),new Vector2f(1/4f,1/4f)));
                     @Override
                     public void render(RenderContext context) {
-                        vertexPackage.bind();
+                        packedVertexBuffer.bind();
                         glDrawArrays(GL_QUADS, 0, 4*6);
 
                     }

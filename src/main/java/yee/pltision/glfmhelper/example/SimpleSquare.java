@@ -1,4 +1,4 @@
-package yee.pltision.glfmhelper.shape;
+package yee.pltision.glfmhelper.example;
 
 import org.joml.Matrix2f;
 import org.joml.Matrix4f;
@@ -17,7 +17,7 @@ import static yee.pltision.glfmhelper.globject.VertexProperties.*;
 
 public class SimpleSquare {
 
-    VertexPackage vertexPackage;
+    PackedVertexBuffer packedVertexBuffer;
     ShaderProgram program;
     Texture texture;
 
@@ -39,7 +39,7 @@ public class SimpleSquare {
             }
             buf.flip();
 
-            vertexPackage=VertexPackage.create(properties,buf);
+            packedVertexBuffer = PackedVertexBuffer.create(properties,buf);
 
             MemoryUtil.memFree(buf);
 
@@ -51,7 +51,7 @@ public class SimpleSquare {
         );
         matrixUniform = glGetUniformLocation(program.getShaderProgram(), "transform");
 
-        texture=Texture.read("maze/test_image.png");
+        texture=Texture.read("测试图片.png");
 
         textureUniform = glGetUniformLocation(program.getShaderProgram(), "textureSampler");
         glUniform1i(textureUniform, 0);
@@ -64,7 +64,7 @@ public class SimpleSquare {
 
     public void render(){
         program.use();
-        vertexPackage.bind();
+        packedVertexBuffer.bind();
         texture.bind();
         glUniformMatrix4fv(matrixUniform,false, matrix4f.get(buffer));
         glDrawArrays(GL_QUADS, 0, 4);
@@ -73,7 +73,7 @@ public class SimpleSquare {
     }
 
     public void delete(){
-        vertexPackage.delete();
+        packedVertexBuffer.delete();
         program.delete();
         texture.delete();
     }
