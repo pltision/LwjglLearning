@@ -10,6 +10,9 @@ public interface UvGetters {
         return quads(new Vector2f(0,0),new Vector2f(1,1));
     }
 
+    /**
+     * 可以循环提供矩形的四个顶点
+     */
     static Function<Integer,Vector2f> quads(Vector2f start, Vector2f end){
         return new Function<>() {
             final Vector2f[] coordinates=squareVectorList(start,end);
@@ -21,10 +24,11 @@ public interface UvGetters {
     }
     static Vector2f[] squareVectorList(Vector2f start,Vector2f end){
         return new Vector2f[]{
-                new Vector2f(start.x,start.y),
-                new Vector2f(end.x,start.y),
-                new Vector2f(end.x,end.y),
+                //真不确定y要不要反过来了
                 new Vector2f(start.x,end.y),
+                new Vector2f(end.x,end.y),
+                new Vector2f(end.x,start.y),
+                new Vector2f(start.x,start.y),
         };
     }
 

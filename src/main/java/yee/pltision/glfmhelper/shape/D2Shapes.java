@@ -8,10 +8,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
+@SuppressWarnings("UnaryPlus")
 public interface D2Shapes {
 
     /**
-     * @param squareUvGetter {@link UvGetters#quads}, {@link UvGetters#full}
+     * @param squareUvGetter 使用提供四个顶点的getter，例如 {@link UvGetters#quads}, {@link UvGetters#full}
      */
     static List<PosUvVertex> quad(Function<Integer,Vector2f> squareUvGetter, Vector3f... vertexArray){
         ArrayList<PosUvVertex> vertices=new ArrayList<>(4);
@@ -21,17 +22,30 @@ public interface D2Shapes {
         return vertices;
     }
 
-    static List<PosUvVertex> square(Function<Integer,Vector2f> squareUvGetter){
-        return quad(squareUvGetter,unitSquare());
+    static List<PosUvVertex> square(Vector3f relative,float radius,Function<Integer,Vector2f> squareUvGetter){
+        return quad(squareUvGetter, square(relative,radius));
     }
 
     @NotNull
-    static Vector3f[] unitSquare() {
+    static Vector3f[] square(Vector3f relative,float radius) {
         return new Vector3f[]{
-                new Vector3f(-1, -1,0), // 0
-                new Vector3f(+1, -1,0), // 1
-                new Vector3f(+1, +1,0), // 2
-                new Vector3f(+1, -1,0), // 3
+                new Vector3f(-radius/2, -radius/2,0).add(relative), // 0
+                new Vector3f(+radius/2, -radius/2,0).add(relative), // 1
+                new Vector3f(+radius/2, +radius/2,0).add(relative), // 2
+                new Vector3f(-radius/2, +radius/2,0).add(relative), // 3
+        };
+    }
+
+    static List<PosUvVertex> squareFromZero(float size,Function<Integer,Vector2f> squareUvGetter){
+        return quad(squareUvGetter, squareFromZero(size));
+    }
+    @NotNull
+    static Vector3f[] squareFromZero(float size) {
+        return new Vector3f[]{
+                new Vector3f(0, 0,0), // 0
+                new Vector3f(+size, 0,0), // 1
+                new Vector3f(+size, +size,0), // 2
+                new Vector3f(0, +size,0), // 3
         };
     }
 

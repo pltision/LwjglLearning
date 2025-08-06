@@ -1,15 +1,18 @@
 package yee.pltision.game.world.entity;
 
+import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
-import yee.pltision.game.client.EntityRender;
+import yee.pltision.game.client.EntityRenderer;
 import yee.pltision.game.client.resource.Shaders;
 import yee.pltision.game.client.resource.Shapes;
+import yee.pltision.game.client.resource.Textures;
+import yee.pltision.glfmhelper.MatrixStack;
+import yee.pltision.glfmhelper.Mth;
 import yee.pltision.glfmhelper.UniformHelper;
-import yee.pltision.glfmhelper.globject.ShaderProgram;
 
 public class PuamilaEntity implements Player {
 
-    Vector3f pos;
+    Vector3f pos=new Vector3f();
 
     @Override
     public void tick() {
@@ -22,11 +25,17 @@ public class PuamilaEntity implements Player {
     }
 
     @Override
-    public EntityRender<?> createRender() {
-        return (EntityRender<PuamilaEntity>) (entity, facingHelper, matrixStack) -> {
-            Shaders.TEXTURE_SHADER.use();
-            UniformHelper.matrix4f(matrixStack.peek(), Shaders.TEXTURE_SHADER_MATRIX);
-            Shapes.PUAMILA.render();
+    public @NotNull EntityRenderer<?> createRender() {
+        return new EntityRenderer<PuamilaEntity>() {
+            @Override
+            public void render(MatrixStack matrixStack) {
+//                Shaders.TEXTURE_SHADER.use();
+
+                Textures.PUAMILA.bind();
+                UniformHelper.matrix4f(matrixStack.push().translate(pos).rotateX(Mth.toRadians(90)), Shaders.TEXTURE_SHADER_MATRIX);
+                Shapes.PUAMILA.render();
+            }
+
         };
     }
 

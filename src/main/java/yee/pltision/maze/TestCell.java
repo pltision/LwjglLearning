@@ -1,3 +1,4 @@
+/*
 package yee.pltision.maze;
 
 import org.joml.Vector2f;
@@ -35,4 +36,4 @@ public class TestCell implements Cell {
     public Collection<Piece> pieces() {
         return pieces;
     }
-}
+}*/

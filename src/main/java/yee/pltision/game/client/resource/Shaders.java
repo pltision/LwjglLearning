@@ -5,7 +5,8 @@ import yee.pltision.glfmhelper.globject.ShaderProgram;
 
 import java.io.IOException;
 
-import static org.lwjgl.opengl.GL20.*;
+import static org.lwjgl.opengl.GL20.GL_FRAGMENT_SHADER;
+import static org.lwjgl.opengl.GL20.GL_VERTEX_SHADER;
 import static org.lwjgl.opengl.GL20C.glGetUniformLocation;
 
 public interface Shaders {

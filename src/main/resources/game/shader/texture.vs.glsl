@@ -11,7 +11,7 @@ out vec4 fragmentColor;
 out vec2 fragmentUV;
 
 void main(){
-    fragmentPos=vec4(vertexPos,1)*transform;
+    fragmentPos=transform*vec4(vertexPos,1);
     fragmentColor=vertexColor;
     fragmentUV=vertexUv;
     gl_Position=fragmentPos;

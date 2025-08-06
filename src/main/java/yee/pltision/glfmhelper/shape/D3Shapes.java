@@ -3,6 +3,7 @@ package yee.pltision.glfmhelper.shape;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;

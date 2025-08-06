@@ -1,17 +1,11 @@
 package yee.pltision.glfmhelper.shape;
 
-import org.joml.Matrix4f;
+import org.intellij.lang.annotations.MagicConstant;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.system.MemoryUtil;
 import yee.pltision.glfmhelper.globject.PackedVertexBuffer;
 import yee.pltision.glfmhelper.globject.ShaderProgram;
 
-import org.intellij.lang.annotations.MagicConstant;
-
-import java.nio.FloatBuffer;
-
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL20.glUniformMatrix4fv;
 
 /**
  * 表示一个形状记录，用于存储和渲染顶点数据

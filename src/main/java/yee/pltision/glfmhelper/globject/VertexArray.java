@@ -1,6 +1,7 @@
 package yee.pltision.glfmhelper.globject;
 
-import static org.lwjgl.opengl.GL30.*;
+import static org.lwjgl.opengl.GL30.glDeleteVertexArrays;
+import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 
 public class VertexArray implements GLObject {
     int vertexArray;

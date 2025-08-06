@@ -14,7 +14,7 @@ public interface PosUvVertexConsumer<Buffer> extends VertexConsumer<Buffer,PosUv
             @Override
             public void apply(FloatBuffer buffer,PosUvVertex vertex) {
                 buffer.put(vertex.pos().x).put(vertex.pos().y).put(vertex.pos().z);
-                buffer.put(vertex.uv().x).put(vertex.pos().y);
+                buffer.put(vertex.uv().x).put(vertex.uv().y);
                 buffer.put(1).put(1).put(1).put(1);
             }
 

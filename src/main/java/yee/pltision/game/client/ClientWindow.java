@@ -5,19 +5,12 @@ import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
 
-import java.io.IOException;
 import java.nio.IntBuffer;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
 import static org.lwjgl.opengl.GL11.glEnable;
-import static org.lwjgl.opengl.GL11C.GL_BLEND;
-import static org.lwjgl.opengl.GL11C.GL_COLOR_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11C.GL_DEPTH_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11C.GL_DEPTH_TEST;
-import static org.lwjgl.opengl.GL11C.glClear;
-import static org.lwjgl.opengl.GL11C.glClearColor;
-import static org.lwjgl.opengl.GL20C.glGetUniformLocation;
+import static org.lwjgl.opengl.GL11C.*;
 import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
@@ -25,7 +18,7 @@ public class ClientWindow {
 
     long window;
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         ClientWindow app=new ClientWindow();
         app.init();
         app.windowLoop();
@@ -46,7 +39,7 @@ public class ClientWindow {
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE); // the window will be resizable
 
         // Create the window
-        window = glfwCreateWindow(1000, 1000, "Hello World!", NULL, NULL);
+        window = glfwCreateWindow(1080, 1080, "Hello World!", NULL, NULL);
         if ( window == NULL )
             throw new RuntimeException("Failed to create the GLFW window");
 
@@ -90,7 +83,7 @@ public class ClientWindow {
 
         GL.createCapabilities();
 
-
+        RenderingWorld renderingWorld=new RenderingWorld();
 
         glEnable(GL_TEXTURE_2D);
         glEnable(GL_DEPTH_TEST);
@@ -100,6 +93,23 @@ public class ClientWindow {
 
         while (!glfwWindowShouldClose(window)){
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+            if(glfwGetKey(window,GLFW_KEY_W)==GLFW_PRESS){
+                renderingWorld.entity.getPosition().add(0,0.002f,0);
+            }
+            if(glfwGetKey(window,GLFW_KEY_S)==GLFW_PRESS){
+                renderingWorld.entity.getPosition().add(0,-0.002f,0);
+            }
+            if(glfwGetKey(window,GLFW_KEY_A)==GLFW_PRESS){
+                renderingWorld.entity.getPosition().add(-0.002f,0,0);
+            }
+            if(glfwGetKey(window,GLFW_KEY_D)==GLFW_PRESS){
+                renderingWorld.entity.getPosition().add(0.002f,0,0);
+            }
+
+//            renderer.render(camera.getStartMatrixStack());
+            renderingWorld.render();
+            renderingWorld.camera.zRot+=0.001f;
 
             glfwSwapBuffers(window); // swap the color buffers
             glfwPollEvents();
