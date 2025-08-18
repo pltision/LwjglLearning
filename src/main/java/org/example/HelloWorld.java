@@ -165,7 +165,7 @@ public class HelloWorld {
 			glfwSwapBuffers(window); // swap the color buffers
 
 			deg+=0.01;
-			matrix4f.rotateY(0.01f);
+//			matrix4f.rotateY(0.01f);
 
 			// Poll for window events. The key callback above will only be
 			// invoked during this call.

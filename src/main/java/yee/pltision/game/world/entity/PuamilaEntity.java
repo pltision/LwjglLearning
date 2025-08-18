@@ -2,6 +2,7 @@ package yee.pltision.game.world.entity;
 
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
+import yee.pltision.game.Camera;
 import yee.pltision.game.client.EntityRenderer;
 import yee.pltision.game.client.resource.Shaders;
 import yee.pltision.game.client.resource.Shapes;
@@ -28,11 +29,11 @@ public class PuamilaEntity implements Player {
     public @NotNull EntityRenderer<?> createRender() {
         return new EntityRenderer<PuamilaEntity>() {
             @Override
-            public void render(MatrixStack matrixStack) {
+            public void render(MatrixStack matrixStack, Camera camera) {
 //                Shaders.TEXTURE_SHADER.use();
 
                 Textures.PUAMILA.bind();
-                UniformHelper.matrix4f(matrixStack.push().translate(pos).rotateX(Mth.toRadians(90)), Shaders.TEXTURE_SHADER_MATRIX);
+                UniformHelper.matrix4f(matrixStack.push().translate(pos).rotateZ(-camera.zRot).rotateX(Mth.toRadians(90)+camera.xRot), Shaders.TEXTURE_SHADER_MATRIX);
                 Shapes.PUAMILA.render();
             }
 

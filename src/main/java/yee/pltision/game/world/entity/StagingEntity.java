@@ -1,5 +1,9 @@
 package yee.pltision.game.world.entity;
 
+/**
+ *
+ * @param <E> 现在我要去除实体类型改用能力
+ */
 public class StagingEntity<E extends Entity> {
     E entity;
     int index;

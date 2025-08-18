@@ -12,7 +12,7 @@ import java.nio.FloatBuffer;
 
 public interface Shapes {
 
-    ShapeRecord PUAMILA= textureChar(1f,Shaders.TEXTURE_SHADER);
+    ShapeRecord PUAMILA= textureChar(2f,Shaders.TEXTURE_SHADER);
     ShapeRecord TURF=turf(Shaders.TEXTURE_SHADER);
 
     static ShapeRecord textureChar(float size, ShaderProgram shaderProgram){

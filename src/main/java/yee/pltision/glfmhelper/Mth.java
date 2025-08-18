@@ -46,4 +46,10 @@ public class Mth {
     }
 
 
+    public static float lerp(float start, float end, float linear) {
+        return start+linear*(end-start);
+    }
+    public static float lerpSquared(float start, float end, float linear) {
+        return start+linear*linear*(end-start);
+    }
 }

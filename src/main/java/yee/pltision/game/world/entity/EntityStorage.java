@@ -12,7 +12,7 @@ public class EntityStorage {
     /**
      * 添加一个实体到管理器
      *
-     * @param entity 实体 非空，不能重复
+     * @param entity 实体 非空，不能重复（好像不一定）
      */
     public <E extends Entity> StagingEntity<E> add(E entity) {
         StagingEntity<E> stagingEntity;

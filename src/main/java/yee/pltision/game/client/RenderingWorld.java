@@ -41,7 +41,7 @@ public class RenderingWorld  {
 
     public void render(){
         renderTurfs(camera.getStartMatrixStack());
-        renderer.render(camera.getStartMatrixStack());
+        renderer.render(camera.getStartMatrixStack(),camera);
     }
     public void renderTurfs(MatrixStack matrixStack){
 

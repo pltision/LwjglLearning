@@ -1,9 +1,11 @@
 package yee.pltision.game.client;
 
+import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
+import yee.pltision.glfmhelper.Mth;
 
 import java.nio.IntBuffer;
 
@@ -89,27 +91,49 @@ public class ClientWindow {
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_BLEND);
 
-        glClearColor(0, 0, 0, 1.0f);
+        glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+
+        //处理相机旋转
+        /*glfwSetKeyCallback(window, (window, key, scancode, action, mods) -> {
+            if ( key == GLFW_KEY_Q && action == GLFW_RELEASE )
+                renderingWorld.camera.tryTurnLeft();
+            if ( key == GLFW_KEY_E && action == GLFW_RELEASE )
+                renderingWorld.camera.tryTurnRight();
+        });*/
+
+        Vector3f moveVector=new Vector3f(0,0.01f,0);
+        Vector3f compute=new Vector3f();
 
         while (!glfwWindowShouldClose(window)){
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             if(glfwGetKey(window,GLFW_KEY_W)==GLFW_PRESS){
-                renderingWorld.entity.getPosition().add(0,0.002f,0);
+                renderingWorld.entity.getPosition().add(moveVector.rotateZ(-renderingWorld.camera.zRot,compute));
             }
             if(glfwGetKey(window,GLFW_KEY_S)==GLFW_PRESS){
-                renderingWorld.entity.getPosition().add(0,-0.002f,0);
+                renderingWorld.entity.getPosition().add(moveVector.rotateZ(-renderingWorld.camera.zRot+ Mth.PI,compute));
+
             }
             if(glfwGetKey(window,GLFW_KEY_A)==GLFW_PRESS){
-                renderingWorld.entity.getPosition().add(-0.002f,0,0);
+                renderingWorld.entity.getPosition().add(moveVector.rotateZ(-renderingWorld.camera.zRot+Mth.HALF_PI,compute));
             }
             if(glfwGetKey(window,GLFW_KEY_D)==GLFW_PRESS){
-                renderingWorld.entity.getPosition().add(0.002f,0,0);
+                renderingWorld.entity.getPosition().add(moveVector.rotateZ(-renderingWorld.camera.zRot-Mth.HALF_PI,compute));
             }
+
+            if(glfwGetKey(window,GLFW_KEY_Q)==GLFW_PRESS){
+                renderingWorld.camera.tryTurnLeft();
+            }
+            if(glfwGetKey(window,GLFW_KEY_E)==GLFW_PRESS){
+                renderingWorld.camera.tryTurnRight();
+            }
+
+            renderingWorld.camera.update();
+            renderingWorld.camera.pos.set(renderingWorld.entity.getPosition());
 
 //            renderer.render(camera.getStartMatrixStack());
             renderingWorld.render();
-            renderingWorld.camera.zRot+=0.001f;
+//            renderingWorld.camera.zRot+=0.001f;
 
             glfwSwapBuffers(window); // swap the color buffers
             glfwPollEvents();
