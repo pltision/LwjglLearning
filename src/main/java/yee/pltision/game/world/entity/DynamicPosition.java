@@ -1,8 +1,8 @@
 package yee.pltision.game.world.entity;
 
-import org.joml.Vector3f;
+import org.joml.Vector3d;
 
 public interface DynamicPosition {
-    Vector3f getPosition();
+    Vector3d getPosition();
 
 }

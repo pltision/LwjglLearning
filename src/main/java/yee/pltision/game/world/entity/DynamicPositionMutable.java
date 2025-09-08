@@ -1,9 +1,9 @@
 package yee.pltision.game.world.entity;
 
-import org.joml.Vector3f;
+import org.joml.Vector3d;
 
 public interface DynamicPositionMutable extends DynamicPosition{
-    Vector3f getPosition();
+    Vector3d getPosition();
 
-    void setPosition(Vector3f pos);
+    void setPosition(Vector3d pos);
 }

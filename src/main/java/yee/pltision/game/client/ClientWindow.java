@@ -5,7 +5,7 @@ import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
-import yee.pltision.glfmhelper.Mth;
+import yee.pltision.math.Mth;
 
 import java.nio.IntBuffer;
 
@@ -20,7 +20,8 @@ public class ClientWindow {
 
     long window;
 
-    public static void main(String[] args) {
+    @SuppressWarnings("unused")
+    public static void main(String... args) {
         ClientWindow app=new ClientWindow();
         app.init();
         app.windowLoop();
@@ -72,6 +73,7 @@ public class ClientWindow {
 
         // Make the OpenGL context current
         glfwMakeContextCurrent(window);
+
         // Enable v-sync
         glfwSwapInterval(1);
 
@@ -80,6 +82,8 @@ public class ClientWindow {
 
 
     }
+
+    public static float debugI=0;
 
     void windowLoop(){
 
@@ -101,35 +105,44 @@ public class ClientWindow {
                 renderingWorld.camera.tryTurnRight();
         });*/
 
-        Vector3f moveVector=new Vector3f(0,0.01f,0);
+        Vector3f up=new Vector3f(0,0.01f,0);
+        Vector3f down=new Vector3f(0,-0.01f,0);
+        Vector3f left=new Vector3f(-0.01f,0,0);
+        Vector3f right=new Vector3f(0.01f,0,0);
         Vector3f compute=new Vector3f();
 
+        //游戏上一帧计算用了多久
+        float passedTime=0; //初始值应该是每帧的时间，但因为我没有限制帧率，所以为0
+
         while (!glfwWindowShouldClose(window)){
+            double startTime=glfwGetTime();
+
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             if(glfwGetKey(window,GLFW_KEY_W)==GLFW_PRESS){
-                renderingWorld.entity.getPosition().add(moveVector.rotateZ(-renderingWorld.camera.zRot,compute));
+                renderingWorld.entity.getPosition().add(up.rotate(renderingWorld.zRot,compute));
             }
             if(glfwGetKey(window,GLFW_KEY_S)==GLFW_PRESS){
-                renderingWorld.entity.getPosition().add(moveVector.rotateZ(-renderingWorld.camera.zRot+ Mth.PI,compute));
-
+                renderingWorld.entity.getPosition().add(down.rotate(renderingWorld.zRot,compute));
             }
             if(glfwGetKey(window,GLFW_KEY_A)==GLFW_PRESS){
-                renderingWorld.entity.getPosition().add(moveVector.rotateZ(-renderingWorld.camera.zRot+Mth.HALF_PI,compute));
+                renderingWorld.entity.getPosition().add(left.rotate(renderingWorld.zRot,compute));
             }
             if(glfwGetKey(window,GLFW_KEY_D)==GLFW_PRESS){
-                renderingWorld.entity.getPosition().add(moveVector.rotateZ(-renderingWorld.camera.zRot-Mth.HALF_PI,compute));
+                renderingWorld.entity.getPosition().add(right.rotate(renderingWorld.zRot,compute));
             }
 
             if(glfwGetKey(window,GLFW_KEY_Q)==GLFW_PRESS){
-                renderingWorld.camera.tryTurnLeft();
+                renderingWorld.tryTurnLeft();
             }
             if(glfwGetKey(window,GLFW_KEY_E)==GLFW_PRESS){
-                renderingWorld.camera.tryTurnRight();
+                renderingWorld.tryTurnRight();
             }
 
-            renderingWorld.camera.update();
-            renderingWorld.camera.pos.set(renderingWorld.entity.getPosition());
+            debugI+=0.01f;
+
+            renderingWorld.update(passedTime);
+//            renderingWorld.camera.pos.set(renderingWorld.entity.getPosition());
 
 //            renderer.render(camera.getStartMatrixStack());
             renderingWorld.render();
@@ -137,6 +150,8 @@ public class ClientWindow {
 
             glfwSwapBuffers(window); // swap the color buffers
             glfwPollEvents();
+
+            passedTime= (float) (glfwGetTime()-startTime);
         }
     }
 
