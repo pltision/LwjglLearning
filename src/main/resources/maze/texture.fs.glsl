@@ -5,6 +5,7 @@ in vec4 fragmentColor;
 in vec2 fragmentUV;
 
 uniform sampler2D textureSampler;
+uniform sampler2DRect rect;
 
 out vec4 outColor;
 

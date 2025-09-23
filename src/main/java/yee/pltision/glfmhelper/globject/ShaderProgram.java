@@ -31,6 +31,10 @@ public class ShaderProgram implements GLObject {
 
     public void link(){
         glLinkProgram(shaderProgram);
+
+        if (glGetProgrami(shaderProgram, GL_LINK_STATUS) == GL_FALSE) {
+            throw new ShaderProgramLinkException(shaderProgram, glGetProgramInfoLog(shaderProgram));
+        }
     }
 
     public ShaderProgram link(Shader vertexShader,Shader fragmentShader){

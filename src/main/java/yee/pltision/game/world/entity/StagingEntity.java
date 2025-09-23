@@ -1,5 +1,7 @@
 package yee.pltision.game.world.entity;
 
+import java.util.function.Function;
+
 /**
  *
  * @param <E> 现在我要去除实体类型改用能力
@@ -9,9 +11,9 @@ public class StagingEntity<E extends Entity> {
     int index;
     private boolean isValid;
 
-    public StagingEntity(E entity, int index) {
+    public StagingEntity(E entity, Function<StagingEntity<?>,Integer> idFactory) {
         this.entity = entity;
-        this.index = index;
+        this.index = idFactory.apply(this);
         this.isValid = true;
     }
 

@@ -34,15 +34,13 @@ public class Shader implements GLObject{
         glShaderSource(shader,source);
         glCompileShader(shader);
 
-        int[] isSuccess={0};
-        glGetShaderiv(shader, GL_COMPILE_STATUS, isSuccess);
-        if (isSuccess[0] == 0) {
+        if (glGetShaderi(shader, GL_COMPILE_STATUS) == GL_FALSE) {
             throw new RuntimeException(glGetShaderInfoLog(shader));
         }
     }
 
     public static void readFromResourceAndBindShader(int shader, String resource) throws IOException {
-        ByteBuffer source = IOUtils.ioResourceToByteBuffer(resource, 8192);
+        ByteBuffer source = IOUtils.ioResourceToByteBuffer(resource, 81920);
 //        byte[] test=new byte[source.remaining()];
 //        source.get(test);
 //        System.out.println(new String(test));
@@ -56,15 +54,18 @@ public class Shader implements GLObject{
         glShaderSource(shader, strings, lengths);
         glCompileShader(shader);
 
-        IntBuffer isSuccess = BufferUtils.createIntBuffer(1);
-        glGetShaderiv(shader, GL_COMPILE_STATUS, isSuccess);
-        if (isSuccess.get() == 0) {
-            throw new RuntimeException(glGetShaderInfoLog(shader));
+        if (glGetShaderi(shader, GL_COMPILE_STATUS) == GL_FALSE) {
+            throw new ShaderCompileException(shader,glGetShaderInfoLog(shader));
         }
     }
 
     public Shader readResource(String resource) throws IOException{
         readFromResourceAndBindShader(getShader(),resource);
+        return this;
+    }
+
+    public Shader compile(String source){
+        bindShader(getShader(),source);
         return this;
     }
 }
