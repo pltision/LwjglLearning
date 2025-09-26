@@ -36,8 +36,6 @@ public class GPUNoiseGenerator {
     private int vao, vbo, ebo;
     private int fbo, noiseTexture;
 
-
-
     // 噪声参数
     private float noiseScale = 4.0f;
     private float time = 0.0f;

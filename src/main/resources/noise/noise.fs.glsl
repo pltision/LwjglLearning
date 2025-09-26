@@ -111,8 +111,8 @@ void main()
 
 
     float noise1 = (perlinNoise(uv,0)+perlinNoise(uv/2,1)/2+perlinNoise(uv/4,2)/2)/2;
-//    float noise2 = (perlinNoise(uv,3)+perlinNoise(uv/2,4)/2+perlinNoise(uv/4,5)/2)/2;
-    float noise=1-max(sqrt(abs(noise1)),sqrt(abs(noise2)),sqrt(abs(noise3)));
+    float noise2 = (perlinNoise(uv,3)+perlinNoise(uv/2,4)/2+perlinNoise(uv/4,5)/2)/2;
+    float noise=1-max(sqrt(abs(noise1)),sqrt(abs(noise2)));
 //    float noise=perlinNoise(uv,0);
 
     FragColor = vec4(0,sqr(noise),noise, 1);

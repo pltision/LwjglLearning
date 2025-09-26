@@ -8,15 +8,19 @@ import yee.pltision.game.Camera;
 import yee.pltision.game.client.resource.Shaders;
 import yee.pltision.game.client.resource.Shapes;
 import yee.pltision.game.world.entity.PuamilaEntity;
-import yee.pltision.game.world.grid.Turf;
-import yee.pltision.game.world.grid.TurfGrid;
-import yee.pltision.game.world.grid.Turfs;
+import yee.pltision.game.world.tile.*;
 import yee.pltision.glfmhelper.MatrixStack;
 import yee.pltision.math.LerpFactor;
 import yee.pltision.math.Mth;
 import yee.pltision.glfmhelper.UniformHelper;
 
 public class RenderingWorld  {
+    WorldAssets assets =new WorldAssets();
+    RenderingTileManger tileManger=new RenderingTileManger();
+
+    {
+        tileManger.build(assets.TILE_MAPPING);
+    }
 
     PuamilaEntity entity=new PuamilaEntity();
     EntityRenderer<?> renderer= entity.createRender();
@@ -32,16 +36,16 @@ public class RenderingWorld  {
 
     Camera camera=new Camera();
 
-    public static final Turf[] TURFS={
-            Turfs.GRASS,
-            Turfs.GRASS,
-            Turfs.GRASS,
-            Turfs.GRASS,
+    public final TileState[] TILES ={
+            assets.GRASS,
+            assets.GRASS,
+            assets.GRASS,
+            assets.GRASS,
 
-            Turfs.DIRT,
-            Turfs.DIRT,
-            Turfs.DIRT,
-            Turfs.DIRT,
+            assets.DIRT,
+            assets.DIRT,
+            assets.DIRT,
+            assets.DIRT,
 
     };
 //    TurfGrid grid= (x, y) -> TURFS[(Math.abs(x)  + Math.abs(y) ) % TURFS.length];
@@ -50,7 +54,7 @@ public class RenderingWorld  {
 //        int linear=Math.abs(x) + Math.abs(y);
 //        return TURFS[linear==0?0:( ((x * x + y * y)/TURFS.length % linear) * TURFS.length / linear )];
 //    };
-    TurfGrid grid= (x, y) -> TURFS[(int) Mth.qSqrt(x*x+y*y)%TURFS.length];
+    TileGrid grid= (x, y) -> TILES[(int) Mth.qSqrt(x*x+y*y)% TILES.length];
 
 
     public static final float ROTATE_CLOD_DOWN_TIME=1/0.25f;
@@ -96,7 +100,7 @@ public class RenderingWorld  {
                 move.set(i,j,0);
                 matrix.set(upMatrix)/*.scale(0.2f)*/.translate(move);
 
-                grid.getTurf(i,j).getRendering().texture().bind();
+                grid.getTurf(i,j).tile().getRendering().texture().bind();
                 UniformHelper.matrix4f(matrix, Shaders.TEXTURE_SHADER_MATRIX);
                 Shapes.TURF.render();
             }

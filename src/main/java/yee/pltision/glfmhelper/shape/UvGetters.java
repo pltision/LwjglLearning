@@ -24,7 +24,6 @@ public interface UvGetters {
     }
     static Vector2f[] squareVectorList(Vector2f start,Vector2f end){
         return new Vector2f[]{
-                //真不确定y要不要反过来了
                 new Vector2f(start.x,end.y),
                 new Vector2f(end.x,end.y),
                 new Vector2f(end.x,start.y),

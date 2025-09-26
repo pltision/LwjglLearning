@@ -30,8 +30,6 @@ public class PuamilaEntity implements Player {
         return new EntityRenderer<PuamilaEntity>() {
             @Override
             public void render(MatrixStack matrixStack, Camera camera) {
-//                Shaders.TEXTURE_SHADER.use();
-
                 Textures.PUAMILA.bind();
                 UniformHelper.matrix4f(matrixStack.push().rotate(new Quaternionf().div(camera.getZRot())).rotateX(-camera.xRot), Shaders.TEXTURE_SHADER_MATRIX);
                 Shapes.PUAMILA.render();
