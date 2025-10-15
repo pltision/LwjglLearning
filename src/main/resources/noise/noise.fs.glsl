@@ -3,7 +3,7 @@
 out vec4 FragColor;
 in vec2 TexCoord;
 
-float noiseScale=8;
+uniform float noiseScale;
 uniform float time;
 uniform bool animate;
 uniform sampler3D randomTextures[10];
@@ -106,7 +106,7 @@ void main()
 
 //    float noise1 = (perlinNoise(uv,0)+perlinNoise(uv*0.5,1)+perlinNoise(uv*0.25,2))/3;
     vec3 shifted = uv + vec3(perlinNoise(uv,6),perlinNoise(uv,7),perlinNoise(uv,8))*0.2;
-    float noise3 = (perlinNoise(shifted,0)+perlinNoise(shifted*0.5,1)+perlinNoise(shifted*0.25,2))/3;
+//    float noise3 = (perlinNoise(shifted,0)+perlinNoise(shifted*0.5,1)+perlinNoise(shifted*0.25,2))/3;
 //    float noise=1-max(sqrt(abs(noise1)),sqrt(abs(noise2)));
 
 

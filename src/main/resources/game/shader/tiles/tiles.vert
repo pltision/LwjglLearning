@@ -1,28 +1,33 @@
 #version 330
 
+const int chunkSize = 16;
+const int tileSize = /*256*/1;
+
 // 输入：区块位置（世界坐标格子数）和瓦片索引数组
-layout (location=0) in ivec2 chunkPos;  // 区块位置（每个区块16x16瓦片）
-layout (location=1) in int tiles[16*16];  // 16x16瓦片的索引（对应纹理图集）
+layout (location=0) in ivec2 chunkPos;  // 区块位置
+layout (location=1) in int tiles[tileSize];  // 16x16瓦片的索引
 
 // 输出到几何着色器的数据
 out VS_OUT {
-    vec4 origin;       // 区块左下角的世界坐标（经投影后）
-    vec4 unitX;        // x方向一个瓦片的投影后向量
-    vec4 unitY;        // y方向一个瓦片的投影后向量
-    int tileIndices[16*16];  // 瓦片索引数组
+    vec4 verts[4];  // 四边形顶点（投影后）
+    flat int tileIndices[tileSize];  // 瓦片索引数组
 } vs_out;
 
+uniform ivec2 relativePos;  // 相对位置（玩家所在区块）
 uniform mat4 projection;  // 投影矩阵
 
+vec4 toVec4Pos(vec2 pos) {
+    return projection * vec4(pos, 0.0, 1.0);
+}
 
 void main() {
-    // 计算区块原点（左下角）的世界坐标（转换为浮点数）
-    vec2 worldOrigin = vec2(chunkPos) * 16.0;  // 16瓦片/区块
-    vs_out.origin = projection * vec4(worldOrigin, 0.0, 1.0);
+    // 计算区块原点的原点坐标（偏移relativePos减少float精度损失）
+    vec2 origin = vec2(chunkPos - relativePos) * chunkSize;  // 16瓦片/区块
 
-    // 计算一个瓦片在x/y方向的投影后向量（用于几何着色器生成网格）
-    vs_out.unitX = projection * vec4(1.0, 0.0, 0.0, 0.0);  // x方向一个瓦片
-    vs_out.unitY = projection * vec4(0.0, 1.0, 0.0, 0.0);  // y方向一个瓦片
+    vs_out.verts[0] = projection * toVec4Pos(origin) ;         // 左下
+    vs_out.verts[1] = projection * toVec4Pos(origin + vec2(chunkSize, 0.0));   // 右下
+    vs_out.verts[2] = projection * toVec4Pos(origin + vec2(0.0, chunkSize));   // 左上
+    vs_out.verts[3] = projection * toVec4Pos(origin + vec2(chunkSize, chunkSize)); // 右上
 
     // 传递瓦片索引数组
     vs_out.tileIndices = tiles;
@@ -30,3 +35,5 @@ void main() {
     // 顶点着色器只需输出一个"标记点"（几何着色器以此为基准生成网格）
     gl_Position = vec4(0.0, 0.0, 0.0, 1.0);
 }
+
+

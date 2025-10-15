@@ -4,6 +4,7 @@ import org.intellij.lang.annotations.MagicConstant;
 import org.lwjgl.opengl.GL11;
 import yee.pltision.glfmhelper.globject.PackedVertexBuffer;
 import yee.pltision.glfmhelper.globject.ShaderProgram;
+import yee.pltision.glfmhelper.globject.VertexArray;
 
 import static org.lwjgl.opengl.GL11.*;
 
@@ -12,14 +13,14 @@ import static org.lwjgl.opengl.GL11.*;
  * 通过指定的着色器程序和矩阵进行渲染
  */
 public class ShapeRecord {
-    PackedVertexBuffer vertexBuffer;
+    VertexArray vertexBuffer;
     int drawArrayType;
     int drawArrayStart;
     int drawArrayCount;
     ShaderProgram shaderProgram;
 
     /**
-     * @param drawArrayStart OpenGL 常量，如：
+     * @param drawArrayType
      *  {@link GL11#GL_POINTS},
      *  {@link GL11#GL_LINES},
      *  {@link GL11#GL_LINE_LOOP},
@@ -32,7 +33,7 @@ public class ShapeRecord {
      *  {@link GL11#GL_POLYGON}
      */
     public ShapeRecord(
-            PackedVertexBuffer vertexBuffer,
+            VertexArray vertexBuffer,
             @MagicConstant(intValues = {
                     GL_POINTS,
                     GL_LINES,

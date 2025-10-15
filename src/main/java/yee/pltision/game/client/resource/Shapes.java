@@ -5,6 +5,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.system.MemoryUtil;
 import yee.pltision.glfmhelper.globject.PackedVertexBuffer;
 import yee.pltision.glfmhelper.globject.ShaderProgram;
+import yee.pltision.glfmhelper.globject.VertexArray;
 import yee.pltision.glfmhelper.globject.VertexProperties;
 import yee.pltision.glfmhelper.shape.*;
 
@@ -20,10 +21,9 @@ public interface Shapes {
                 .join(D2Shapes.square(new Vector3f(0,size/2,0),size,UvGetters.full()), PosUvVertexConsumer.posUvRgba());
         FloatBuffer buffer = builder.applyToBuffer(MemoryUtil::memAllocFloat);
         buffer.flip();
-//        builder.countVertex();
-        PackedVertexBuffer packedVertexBuffer=PackedVertexBuffer.create(VertexProperties.posUvRgba(),buffer);
+        VertexArray vertexArray=VertexArray.createSimple(VertexProperties.posUvRgba(),buffer);
         MemoryUtil.memFree(buffer);
-        return new ShapeRecord(packedVertexBuffer, GL11.GL_QUADS, 0, builder.countVertex(), shaderProgram);
+        return new ShapeRecord(vertexArray, GL11.GL_QUADS, 0, builder.countVertex(), shaderProgram);
     }
 
     static ShapeRecord turf(ShaderProgram shaderProgram){
@@ -31,8 +31,8 @@ public interface Shapes {
                 .join(D2Shapes.squareFromZero(1,UvGetters.full()), PosUvVertexConsumer.posUvRgba());
         FloatBuffer buffer = builder.applyToBuffer(MemoryUtil::memAllocFloat);
         buffer.flip();
-        PackedVertexBuffer packedVertexBuffer=PackedVertexBuffer.create(VertexProperties.posUvRgba(),buffer);
+        VertexArray vertexArray=VertexArray.createSimple(VertexProperties.posUvRgba(),buffer);
         MemoryUtil.memFree(buffer);
-        return new ShapeRecord(packedVertexBuffer, GL11.GL_QUADS, 0, builder.countVertex(), shaderProgram);
+        return new ShapeRecord(vertexArray, GL11.GL_QUADS, 0, builder.countVertex(), shaderProgram);
     }
 }

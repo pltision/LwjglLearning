@@ -1,7 +1,8 @@
 package yee.pltision.glfmhelper.globject;
 
-import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
-import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
+import java.nio.FloatBuffer;
+
+import static org.lwjgl.opengl.GL15.GL_STATIC_DRAW;
 
 public class VertexProperties {
 
@@ -15,7 +16,7 @@ public class VertexProperties {
         }
     }
 
-    private final Element[] elements;
+    public final Element[] elements;
     public final int size;
     public final int floatSize;
 
@@ -106,17 +107,6 @@ public class VertexProperties {
 
     public static Element uv() {
         return floats(2);
-    }
-
-    public void apply() {
-        int location = 0;
-        int byteIndex = 0;
-        for (Element element : elements) {
-            glVertexAttribPointer(location, element.count, element.type.type, false, size, byteIndex);
-            glEnableVertexAttribArray(location);
-            byteIndex += element.count * element.type.size;
-            location++;
-        }
     }
 
 }

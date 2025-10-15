@@ -5,7 +5,7 @@ import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
-import yee.pltision.math.Mth;
+import yee.pltision.game.client.level.RenderingWorld;
 
 import java.nio.IntBuffer;
 

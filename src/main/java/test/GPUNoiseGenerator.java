@@ -37,7 +37,7 @@ public class GPUNoiseGenerator {
     private int fbo, noiseTexture;
 
     // 噪声参数
-    private float noiseScale = 4.0f;
+    private float noiseScale = 8.0f;
     private float time = 0.0f;
     private boolean animate = false;
 
@@ -103,11 +103,11 @@ public class GPUNoiseGenerator {
                 System.out.println("动画 " + (animate ? "开启" : "关闭"));
             }
             if (key == GLFW_KEY_UP && action == GLFW_RELEASE) {
-                noiseScale *= 1.2f;
+                noiseScale /= 1.2f;
                 System.out.println("噪声缩放: " + noiseScale);
             }
             if (key == GLFW_KEY_DOWN && action == GLFW_RELEASE) {
-                noiseScale /= 1.2f;
+                noiseScale *= 1.2f;
                 System.out.println("噪声缩放: " + noiseScale);
             }
         });
