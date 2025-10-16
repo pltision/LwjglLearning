@@ -10,7 +10,7 @@ public class BinPackingVisualizer extends JFrame {
     private final JPanel drawingPanel;
     private BinPacking.Result currentResult;
     private BinPacking.RectSource[] currentSources;
-    private int currentSeed = 53; // 初始种子
+    private int currentSeed = 89; // 初始种子
     private final JTextField seedField; // 种子输入框
     private int currentStep = 0; // 当前显示的步骤（矩形数量）
 
@@ -187,7 +187,7 @@ public class BinPackingVisualizer extends JFrame {
         // 显示装箱空间大小和当前步骤信息
         g.setColor(Color.BLACK);
         g.drawString("装箱空间大小: " + size + "x" + size, margin, margin - 10);
-        g.drawString("当前步骤: " + currentStep + "/" + totalSteps, margin, margin - 30);
+//        g.drawString("当前步骤: " + currentStep + "/" + totalSteps, margin, margin - 30);
     }
 
     // 根据ID查找对应的矩形源数据
@@ -224,8 +224,8 @@ public class BinPackingVisualizer extends JFrame {
 
         for (int i = 0; i < count; i++) {
             // 随机生成1-3的宽高
-            int width = random.nextInt(3) + 1;
-            int height = random.nextInt(3) + 1;
+            int width = random.nextInt(8) + 1;
+            int height = random.nextInt(8) + 1;
             sources[i] = new BinPacking.RectSource(i, new BinPacking.Rect(width, height));
         }
 

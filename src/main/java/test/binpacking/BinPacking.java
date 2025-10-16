@@ -120,10 +120,10 @@ public class BinPacking {
         TreeMap<Integer,Node> nodeSet=new TreeMap<>();
         nodeSet.put(0,new Node(0,0));
 
-        /*//找到最小的size
+        //找到最小的size
         while (size<rectangles[0].rect.width || size<rectangles[0].rect.height){
             size*=2;
-        }*/
+        }
 
         while(true){
             int placed=fillInRect(0,0,size,size,nodeSet,rectangles,result,binarySearchHigherOrEqual(rectangles,new RectSource(size,size)));
@@ -134,20 +134,15 @@ public class BinPacking {
 
             //如果没有矩形可以放了，说明空间已经被填满
             if(placed==0) {
-                //空了说明完全填满了空间
-                if (nodeSet.isEmpty()) {
+                //不可能为空
+                //如果最左侧没有节点要添加
+                if (nodeSet.firstEntry().getValue().x != 0) {
                     nodeSet.put(0, new Node(0, size));
+                }
+                //x=size的节点不应该存在
+                //最右侧的节点不在最低位置要添加
+                if (nodeSet.lastEntry().getValue().y != 0) {
                     nodeSet.put(size, new Node(size, 0));
-                } else {
-                    //如果最左侧没有节点要添加
-                    if (nodeSet.firstEntry().getValue().x != 0) {
-                        nodeSet.put(0, new Node(0, size));
-                    }
-                    //x=size的节点不应该存在
-                    //最右侧的节点不在最低位置要添加
-                    if (nodeSet.lastEntry().getValue().y != 0) {
-                        nodeSet.put(size, new Node(size, 0));
-                    }
                 }
                 size *= 2;
             }
@@ -211,96 +206,64 @@ public class BinPacking {
 
             for(var nodeEntry:available.entrySet()) {
                 Node node = nodeEntry.getValue();
+
+                int nextNodeX = node.x + rect.width;
+                int nextY = node.y + rect.height;
+
                 //超过最大高度了
-                if (node.y + rect.height> maxY)
+                if (nextY> maxY)
                     continue;
 
                 result.add(new PlacedRect(rectSource.id, node.x, node.y));
                 rectangles[i]=null;
                 placed++;
 
-                int nextNodeX = node.x + rect.width;
+                {
+                    var higherNodes = nodeSet.tailMap(nodeEntry.getKey(), false);
+                    //合并被覆盖的节点（不包含放置的节点）
+                    //发现扩容情况应该可以被覆盖大于两个节点，所以应该用循环
+                    int lastY = node.y;
+                    while (!higherNodes.isEmpty()) {
+                        Node higher = higherNodes.firstEntry().getValue();
 
-                //合并被覆盖的一个节点（应该必定只有右边一个）
-                var higherNodes = nodeSet.tailMap(nodeEntry.getKey(),false);
-                if (higherNodes.isEmpty()) {
-                    //当前节点是最后一个节点
-                    //检查是否需要添加新节点
-                    if (nextNodeX < maxX) {
-                        nodeSet.put(nextNodeX, new Node(nextNodeX, node.y));
-                    }
-                }
-                else{
-                    Node higher = higherNodes.firstEntry().getValue();
-                    //如果右边节点的x坐标小于当前节点的x坐标+矩形宽度
-                    //说明右边节点被当前节点覆盖了
-                    if (higher.x <= nextNodeX) {
-                        higherNodes.remove(higher.x);
 
-                        //检查是否需要添加新节点
-                        if ((!higherNodes.isEmpty() && nextNodeX < higherNodes.firstKey())) {
-                            nodeSet.put(nextNodeX, new Node(nextNodeX, higher.y));
+                        //移除被覆盖的节点
+                        if (higher.x <= nextNodeX) {
+                            higherNodes.remove(higher.x);
+                            if (higher.x < nextNodeX) {
+                                //应该前面放不下的新矩形也放不下吧（至少宽度一定大于当前的）
+                                //所以从i开始迭代试试
+                                placed += cycleFill(higher.x, higher.y, nextNodeX - higher.x, lastY - higher.y, rectangles, result, i);
+                            }
+                            lastY = higher.y;
+                        } else {
+                            break;
                         }
-                        //如果覆盖了最右侧的节点，y轴应该最低
-                        else if (nextNodeX < maxX) {
-                            nodeSet.put(nextNodeX, new Node(nextNodeX, y));
-                        }
-
-
-                        //递归调用方法填充可能被浪费的空间
-                        TreeMap<Integer, Node> newNodes = new TreeMap<>();
-                        //新矩形x坐标到nextNodeX的节点
-                        newNodes.put(higher.x, new Node(higher.x, higher.y));
-
-                        //应该前面放不下的新矩形也放不下吧（至少宽度一定大于当前的）
-                        //所以从i开始迭代试试
-                        placed+= fillInRect(higher.x, higher.y, nextNodeX - higher.x, node.y - higher.y, newNodes, rectangles, result,i);
                     }
-                    else {
-                        //没有覆盖节点，但制造了一个新的节点
-                        nodeSet.put(nextNodeX, new Node(nextNodeX, node.y));
-                    }
+                    //添加新节点
+                    if (nextNodeX < maxX)
+                        nodeSet.put(nextNodeX, new Node(nextNodeX, lastY));
                 }
 
-                var lowerEntry = nodeSet.lowerEntry(nodeEntry.getKey());
-                //如果这个节点的高度变化后等于（大于出现在扩容后）x更小的节则合并
-                //如果没有x更小的节点说明这个节点y坐标最大（存疑，如果这个节点x坐标不等于传入的x，但这是错误情况）
-                int nextY = node.y + rect.height;
-                if (lowerEntry != null&&nextY>=lowerEntry.getValue().y) {
-                    Node lower = lowerEntry.getValue();
-                    //新发现的情况，可能出现在扩容之后
-                    if(nextY >= lower.y) {
-                        nodeSet.remove(nodeEntry.getKey());
+                //合并左边的节点
+                var lowerNodes = nodeSet.headMap(node.x,true);
+                int lastX=node.x;
+                while(!lowerNodes.isEmpty()){
+                    Node lower = lowerNodes.lastEntry().getValue();
 
-                        if(nextY>lower.y){
-                            //递归调用方法填充可能被浪费的空间
-                            TreeMap<Integer, Node> newNodes = new TreeMap<>();
-                            //更小x坐标到node.x的节点
-                            newNodes.put(lower.x, new Node(lower.x, lower.y));
+                    //移除被覆盖的节点
+                    if (lower.y<nextY) {
+                        lastX=lower.x;
+                        lowerNodes.remove(lower.x);
 
-                            //这里填i应该不行，宽度可能大于当前的
-                            placed += fillInRect(lower.x, lower.y, node.x - lower.x, nextY - lower.y, newNodes, rectangles, result, 0);
-                        }
-
-                        //如果新高度等于最大高度，把上一个节点也删除
-                        if(nextY==maxY) {
-                            //删除到顶的节点
-                            nodeSet.remove(lowerEntry.getKey());
-                        }
-                        else {
-                            lower.y = nextY;
-                        }
+                        //这里填i应该不行，宽度可能大于当前的
+                        placed +=cycleFill(lower.x, lower.y, node.x - lower.x, nextY - lower.y, rectangles, result, 0);
+                    } else {
+                        break;
                     }
                 }
+                lowerNodes.put(lastX,new Node(lastX,nextY));
 
-                //否则正常增加
-                else {
-                    node.y = nextY;
-                    if(nextY==maxY) {
-                        //删除到顶的节点
-                        nodeSet.remove(nodeEntry.getKey());
-                    }
-                }
 
                 System.out.println(printRectPlaced(x,y,xSize,ySize,rectSource,nodeSet));
                 break;
@@ -308,6 +271,13 @@ public class BinPacking {
         }
 
         return placed;
+    }
+
+    public static int cycleFill(int x,int y,int xSize,int ySize,RectSource[] rectangles,ArrayList<PlacedRect> result,int startForeach){
+        TreeMap<Integer, Node> newNodes = new TreeMap<>();
+        newNodes.put(x, new Node(x, y));
+
+        return fillInRect(x,y,xSize,ySize,newNodes,rectangles,result,startForeach);
     }
 
     public static StringBuilder printRectPlaced(int x,int y,int w,int h,RectSource source,TreeMap<Integer,Node> nodeSet){
