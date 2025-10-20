@@ -3,6 +3,8 @@ package test.binpacking;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -10,9 +12,12 @@ public class BinPackingVisualizer extends JFrame {
     private final JPanel drawingPanel;
     private BinPacking.Result currentResult;
     private BinPacking.RectSource[] currentSources;
-    private int currentSeed = 89; // 初始种子
+    private int currentSeed = 187; // 初始种子
     private final JTextField seedField; // 种子输入框
     private int currentStep = 0; // 当前显示的步骤（矩形数量）
+    // 新增：存储高亮的网格坐标
+    private Integer highlightedX = null;
+    private Integer highlightedY = null;
 
     // 颜色数组用于区分不同的矩形
     private static final Color[] COLORS = {
@@ -46,6 +51,45 @@ public class BinPackingVisualizer extends JFrame {
                 drawPackingResult(g);
             }
         };
+
+        // 新增：添加鼠标点击事件监听器
+        drawingPanel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (currentResult == null) return;
+
+                int size = currentResult.size();
+                int panelWidth = drawingPanel.getWidth();
+                int panelHeight = drawingPanel.getHeight();
+                int margin = 30;
+                int maxDim = Math.max(size, 1);
+                double scaleX = (panelWidth - 2 * margin) / (double) maxDim;
+                double scaleY = (panelHeight - 2 * margin) / (double) maxDim;
+                double scale = Math.min(scaleX, scaleY);
+
+                // 计算点击位置相对于网格的坐标
+                int clickX = e.getX();
+                int clickY = e.getY();
+
+                // 检查点击是否在网格区域内
+                if (clickX >= margin && clickX <= margin + size * scale &&
+                        clickY >= margin && clickY <= margin + size * scale) {
+
+                    // 计算对应的网格坐标
+                    highlightedX = (int) Math.round((clickX - margin) / scale);
+                    highlightedY = (int) Math.round((clickY - margin) / scale);
+
+                    // 确保坐标在有效范围内
+                    highlightedX = Math.max(0, Math.min(size, highlightedX));
+                    highlightedY = Math.max(0, Math.min(size, highlightedY));
+                } else {
+                    // 点击在网格外，清除高亮
+                    highlightedX = null;
+                    highlightedY = null;
+                }
+                drawingPanel.repaint();
+            }
+        });
 
         // 添加种子修改监听器
         seedField.addActionListener(e -> {
@@ -107,7 +151,7 @@ public class BinPackingVisualizer extends JFrame {
         add(new JScrollPane(drawingPanel), BorderLayout.CENTER);
 
         pack();
-        setSize(800, 600);
+        setSize(1600, 1200);
         setLocationRelativeTo(null); // 居中显示
 
         // 程序启动时自动调用大样例测试
@@ -123,7 +167,6 @@ public class BinPackingVisualizer extends JFrame {
 
         int size = currentResult.size();
         BinPacking.PlacedRect[] placedRects = currentResult.placed();
-        int totalSteps = placedRects.length;
 
         // 计算缩放比例，确保整个装箱结果能在面板中显示
         int panelWidth = drawingPanel.getWidth();
@@ -139,6 +182,34 @@ public class BinPackingVisualizer extends JFrame {
         g.drawRect(margin, margin,
                 (int)(size * scale),
                 (int)(size * scale));
+
+
+        // ===================== 绘制网格线 =====================
+        Color darkGreen=new Color(64,128,0);
+        // 1. 绘制垂直网格线（x轴方向）
+        for (int x = 1; x <= size; x++) {
+            int lineX = margin + (int) (x * scale);
+            if (x > 0 && (x & (x - 1)) == 0) {
+                g.setColor(darkGreen);
+            } else {
+                g.setColor(Color.LIGHT_GRAY);
+            }
+            g.drawString(String.valueOf(x), lineX, margin -10);
+            g.drawLine(lineX, margin-4, lineX, margin + (int) (size * scale));
+        }
+
+        // 2. 绘制水平网格线（y轴方向）
+        for (int y = 1; y <= size; y++) {
+            int lineY = margin + (int) (y * scale);
+            if (y > 0 && (y & (y - 1)) == 0) {
+                g.setColor(darkGreen);
+            } else {
+                g.setColor(Color.LIGHT_GRAY);
+            }
+            g.drawString(String.valueOf(y), margin-16, lineY-4);
+            g.drawLine(margin-4, lineY, margin + (int) (size * scale), lineY);
+        }
+        // ===================== 网格线绘制结束 =====================
 
         // 绘制当前步骤前的所有矩形
         int displayCount = Math.min(currentStep, placedRects.length);
@@ -186,8 +257,30 @@ public class BinPackingVisualizer extends JFrame {
 
         // 显示装箱空间大小和当前步骤信息
         g.setColor(Color.BLACK);
-        g.drawString("装箱空间大小: " + size + "x" + size, margin, margin - 10);
-//        g.drawString("当前步骤: " + currentStep + "/" + totalSteps, margin, margin - 30);
+        g.drawString(size + "x" + size, margin-10, margin - 10);
+
+        // 新增：绘制高亮的网格线（置于最前，最后绘制）
+        if (highlightedX != null && highlightedY != null) {
+            Graphics2D g2 = (Graphics2D) g;
+            // 保存当前画笔状态
+            Stroke originalStroke = g2.getStroke();
+            // 设置蓝色和加粗线条
+            g2.setColor(darkGreen);
+            g2.setStroke(new BasicStroke(2));
+
+            // 绘制高亮垂直线
+            int highlightX = margin + (int) (highlightedX * scale);
+            g2.drawLine(highlightX, margin, highlightX, margin + (int) (size * scale));
+
+            // 绘制高亮水平线
+            int highlightY = margin + (int) (highlightedY * scale);
+            g2.drawLine(margin, highlightY, margin + (int) (size * scale), highlightY);
+
+            g.drawString(highlightedX + "," + highlightedY, highlightX+2, highlightY-4);
+
+            // 恢复原始画笔状态
+            g2.setStroke(originalStroke);
+        }
     }
 
     // 根据ID查找对应的矩形源数据
@@ -219,14 +312,23 @@ public class BinPackingVisualizer extends JFrame {
     // 生成随机大样例（使用当前种子）
     private BinPacking.RectSource[] createLargeTestCases() {
         Random random = new Random(currentSeed); // 使用当前种子
-        int count = random.nextInt(10) + 5; // 生成5-15个矩形
-        BinPacking.RectSource[] sources = new BinPacking.RectSource[count];
 
-        for (int i = 0; i < count; i++) {
-            // 随机生成1-3的宽高
-            int width = random.nextInt(8) + 1;
-            int height = random.nextInt(8) + 1;
-            sources[i] = new BinPacking.RectSource(i, new BinPacking.Rect(width, height));
+        int [] counts = new int[random.nextInt(20) + 5];
+        int length=0;
+
+        for(int i=0;i<counts.length;i++){
+            length+= counts[i] = random.nextInt(2) + 1;
+        }
+
+        int index=0;
+        BinPacking.RectSource[] sources = new BinPacking.RectSource[length];
+        for (int count:counts) {
+            int width = random.nextInt(28) + 1;
+            int height = random.nextInt(28) + 1;
+            //生成多个同样宽度的矩形模拟常见情况
+            for(int i=0;i<count;i++) {
+                sources[index++] = new BinPacking.RectSource(index, new BinPacking.Rect(width, height));
+            }
         }
 
         return sources;

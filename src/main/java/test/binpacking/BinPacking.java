@@ -120,8 +120,14 @@ public class BinPacking {
         TreeMap<Integer,Node> nodeSet=new TreeMap<>();
         nodeSet.put(0,new Node(0,0));
 
+        //计算所有矩形的面积和
+        int totalArea=0;
+        for(RectSource rectSource:rectangles){
+            totalArea+=rectSource.rect.width*rectSource.rect.height;
+        }
+
         //找到最小的size
-        while (size<rectangles[0].rect.width || size<rectangles[0].rect.height){
+        while (size<rectangles[0].rect.width || size<rectangles[0].rect.height || size*size<totalArea){
             size*=2;
         }
 
@@ -252,18 +258,16 @@ public class BinPacking {
                     Node lower = lowerNodes.lastEntry().getValue();
 
                     //移除被覆盖的节点
-                    if (lower.y<nextY) {
-                        lastX=lower.x;
+                    if (lower.y<=nextY) {
                         lowerNodes.remove(lower.x);
-
                         //这里填i应该不行，宽度可能大于当前的
-                        placed +=cycleFill(lower.x, lower.y, node.x - lower.x, nextY - lower.y, rectangles, result, 0);
+                        placed +=cycleFill(lower.x, lower.y, lastX - lower.x, nextY - lower.y, rectangles, result, 0);
+                        lastX=lower.x;
                     } else {
                         break;
                     }
                 }
                 lowerNodes.put(lastX,new Node(lastX,nextY));
-
 
                 System.out.println(printRectPlaced(x,y,xSize,ySize,rectSource,nodeSet));
                 break;
