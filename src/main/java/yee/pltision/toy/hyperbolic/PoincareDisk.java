@@ -1,4 +1,4 @@
-package yee.pltision.raytracing.blackhome;
+package yee.pltision.toy.hyperbolic;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.Version;
@@ -14,7 +14,6 @@ import yee.pltision.glfmhelper.globject.Texture;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
-import java.util.Random;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
@@ -23,7 +22,7 @@ import static org.lwjgl.opengl.GL20.*;
 import static org.lwjgl.opengl.GL30.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
-public class BlackHome {
+public class PoincareDisk {
     // 窗口和纹理参数
     private static final int WIDTH = 1024;
     private static final int HEIGHT = 1024;
@@ -154,8 +153,8 @@ public class BlackHome {
         // 创建着色器程序
         try {
             shaderProgram=ShaderProgram.create().linkAndDelete(
-                    Shader.create(GL_VERTEX_SHADER).readResource("ray/blackhome.vs.glsl"),
-                    Shader.create(GL_FRAGMENT_SHADER).readResource("ray/blackhome.fs.glsl")
+                    Shader.create(GL_VERTEX_SHADER).readResource("toy/poincare_disk.vs.glsl"),
+                    Shader.create(GL_FRAGMENT_SHADER).readResource("toy/poincare_disk.fs.glsl")
             );
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -168,10 +167,10 @@ public class BlackHome {
         // 全屏四边形顶点数据
         float[] vertices = {
                 // 位置          // 纹理坐标
-                -1.0f, -1.0f,  0.0f, 1.0f,
-                1.0f, -1.0f,  1.0f, 1.0f,
-                1.0f,  1.0f,  1.0f, 0.0f,
-                -1.0f,  1.0f,  0.0f, 0.0f,
+                -1.0f, -1.0f,-1.0f, -1.0f,
+                1.0f, -1.0f,1.0f, -1.0f,
+                1.0f,  1.0f,1.0f,  1.0f,
+                -1.0f,  1.0f,-1.0f,  1.0f,
         };
 
         // 索引数据
@@ -228,7 +227,7 @@ public class BlackHome {
 
     private void initUniverseTexture() throws IOException {
         // 加载宇宙贴图
-        Texture universeTexture=Texture.read("ray/the_rod_with_lamp.png");
+        Texture universeTexture=Texture.read("toy/square.png");
 
         // 将Universe.png绑定到uniform变量
         int universeTextureUniform = glGetUniformLocation(shaderProgram.getShaderProgram(), "universe");
@@ -312,6 +311,6 @@ public class BlackHome {
     }
 
     public static void main(String[] args) {
-        new BlackHome().run();
+        new PoincareDisk().run();
     }
 }

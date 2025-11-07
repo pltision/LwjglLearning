@@ -7,17 +7,7 @@ import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
 import static org.lwjgl.demo.util.IOUtils.ioResourceToByteBuffer;
-import static org.lwjgl.opengl.GL11.GL_NEAREST;
-import static org.lwjgl.opengl.GL11.glBindTexture;
-import static org.lwjgl.opengl.GL11.glDeleteTextures;
-import static org.lwjgl.opengl.GL11.glGenTextures;
-import static org.lwjgl.opengl.GL11C.GL_RGBA;
-import static org.lwjgl.opengl.GL11C.GL_TEXTURE_2D;
-import static org.lwjgl.opengl.GL11C.GL_TEXTURE_MAG_FILTER;
-import static org.lwjgl.opengl.GL11C.GL_TEXTURE_MIN_FILTER;
-import static org.lwjgl.opengl.GL11C.GL_UNSIGNED_BYTE;
-import static org.lwjgl.opengl.GL11C.glTexImage2D;
-import static org.lwjgl.opengl.GL11C.glTexParameteri;
+import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.stb.STBImage.stbi_image_free;
 import static org.lwjgl.stb.STBImage.stbi_load_from_memory;
 
@@ -74,6 +64,18 @@ public class Texture implements GLObject {
             stbi_image_free(data);
             return texture;
         }
+    }
+
+    public static Texture createEmpty(int width,int height){
+        Texture texture = Texture.create(GL_TEXTURE_2D);
+        texture.bind();
+        texture.emptyImage2D(0,GL_RGBA,width,height,GL_RGBA);
+        return texture;
+    }
+
+    public void emptyImage2D(int mipmapLevel,int internalFormat, int width,int height,int bufferFormat){
+        setFilter(GL_NEAREST);
+        glTexImage2D(type, mipmapLevel, internalFormat, width, height, 0, bufferFormat, GL_UNSIGNED_BYTE, 0);
     }
 
 

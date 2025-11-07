@@ -1,5 +1,7 @@
 package yee.pltision.game.client;
 
+import org.joml.Vector2f;
+import org.joml.Vector2i;
 import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
@@ -7,6 +9,7 @@ import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
 import yee.pltision.game.client.level.RenderingWorld;
 
+import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -19,6 +22,8 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 public class ClientWindow {
 
     long window;
+
+    Vector2i windowSize=new Vector2i(1920,1080);
 
     @SuppressWarnings("unused")
     public static void main(String... args) {
@@ -42,7 +47,7 @@ public class ClientWindow {
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE); // the window will be resizable
 
         // Create the window
-        window = glfwCreateWindow(1080, 1080, "Hello World!", NULL, NULL);
+        window = glfwCreateWindow(windowSize.x,windowSize.y, "Hello World!", NULL, NULL);
         if ( window == NULL )
             throw new RuntimeException("Failed to create the GLFW window");
 
@@ -50,6 +55,11 @@ public class ClientWindow {
         glfwSetKeyCallback(window, (window, key, scancode, action, mods) -> {
             if ( key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE )
                 glfwSetWindowShouldClose(window, true); // We will detect this in the rendering loop
+        });
+
+        glfwSetWindowSizeCallback(window, (window, width, height) -> {
+            windowSize.set(width,height);
+            glViewport(0, 0, width, height);    //设置视口
         });
 
         // Get the thread stack and push a new frame
@@ -105,31 +115,39 @@ public class ClientWindow {
                 renderingWorld.camera.tryTurnRight();
         });*/
 
-        Vector3f up=new Vector3f(0,0.01f,0);
-        Vector3f down=new Vector3f(0,-0.01f,0);
-        Vector3f left=new Vector3f(-0.01f,0,0);
-        Vector3f right=new Vector3f(0.01f,0,0);
+        Vector3f up=new Vector3f(0,8f,0);
+        Vector3f down=new Vector3f(0,-8f,0);
+        Vector3f left=new Vector3f(-8f,0,0);
+        Vector3f right=new Vector3f(8f,0,0);
         Vector3f compute=new Vector3f();
 
         //游戏上一帧计算用了多久
         float passedTime=0; //初始值应该是每帧的时间，但因为我没有限制帧率，所以为0
 
+        Vector2i lastWindowSize=new Vector2i();
+
         while (!glfwWindowShouldClose(window)){
             double startTime=glfwGetTime();
+
+            if(!lastWindowSize.equals(windowSize)){
+                lastWindowSize.set(windowSize);
+                renderingWorld.camera.setCameraSize(windowSize.x,windowSize.y);
+            }
+
 
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             if(glfwGetKey(window,GLFW_KEY_W)==GLFW_PRESS){
-                renderingWorld.entity.getPosition().add(up.rotate(renderingWorld.zRot,compute));
+                renderingWorld.entity.getPosition().add(up.rotate(renderingWorld.zRot,compute).mul(passedTime));
             }
             if(glfwGetKey(window,GLFW_KEY_S)==GLFW_PRESS){
-                renderingWorld.entity.getPosition().add(down.rotate(renderingWorld.zRot,compute));
+                renderingWorld.entity.getPosition().add(down.rotate(renderingWorld.zRot,compute).mul(passedTime));
             }
             if(glfwGetKey(window,GLFW_KEY_A)==GLFW_PRESS){
-                renderingWorld.entity.getPosition().add(left.rotate(renderingWorld.zRot,compute));
+                renderingWorld.entity.getPosition().add(left.rotate(renderingWorld.zRot,compute).mul(passedTime));
             }
             if(glfwGetKey(window,GLFW_KEY_D)==GLFW_PRESS){
-                renderingWorld.entity.getPosition().add(right.rotate(renderingWorld.zRot,compute));
+                renderingWorld.entity.getPosition().add(right.rotate(renderingWorld.zRot,compute).mul(passedTime));
             }
 
             if(glfwGetKey(window,GLFW_KEY_Q)==GLFW_PRESS){

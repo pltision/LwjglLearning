@@ -21,9 +21,10 @@ float lerp(float a, float b, float t)
 }
 
 float getRandom(vec3 samplePoint, float scale, int index){
-    return texture(randomTextures[index], mod(samplePoint, scale)/samplePixels).r;
+    return texture(randomTextures[index], mod(samplePoint, scale)/samplePixels +(scale+123)*index*vec3(19.3125216761, 49.73215467, 83.1234567)).r;
 }
 
+const float dsqrt3 = 1/sqrt(3);
 float grad(vec3 scaledPos, vec3 gridPoint, float scale, int index)
 {
     vec3 f = fract(scaledPos) - gridPoint;
@@ -51,7 +52,7 @@ float grad(vec3 scaledPos, vec3 gridPoint, float scale, int index)
     }
 
     // 点积计算梯度贡献
-    return dot(f, gradient);
+    return dot(f, gradient)*dsqrt3;
 }
 
 const int baseScale=4;
@@ -59,7 +60,7 @@ const int baseScale=4;
 float perlinNoise(vec3 uv,float scale, int index)
 {
     scale*=baseScale;
-    uv=uv*scale+((scale+123)*0.1235)*index*vec3(129.3125216761, 239.73215467, 83.1234567);
+    uv*=scale;
 
     // 网格单元坐标
     vec3 i = floor(uv);
@@ -99,43 +100,8 @@ float cube(float x){
     return x*x*x;
 }
 
-float cube2(float x){
-    return x*x*x*x*x*x;
-}
-
 float clampTo1(float x){
     return (x+1)/2;
-}
-
-float override(float x){
-    return 3.0/2.0*x-1.0/2.0*x*x*x;
-}
-
-float override2(float x){
-    float sqrX=x*x;
-    return x*(9.0/4.0+sqrX*(-39.0/16.0+sqrX*(27.0/16.0+sqrX*(-9.0/16.0+sqrX*1.0/16.0))));
-}
-
-float invSqrt(float x)
-{
-    float xhalf = 0.5f * x;
-    int i = floatBitsToInt(x);
-    i = 0x5f375a86 - (i>>1);
-    x = intBitsToFloat(i);
-    x = x * (1.5f - xhalf*x*x);
-    return x;
-}
-
-float qSqrt(float x){
-    return 1/invSqrt(x);
-}
-
-float negativeSqrt(float x){
-    return qSqrt(abs(x))*normalize(x);
-}
-
-float negativeSqrt2(float x){
-    return qSqrt(qSqrt(abs(x)))*normalize(x);
 }
 
 vec4 pinkAqua(float noise){
@@ -147,22 +113,23 @@ vec4 blackWhite(float noise){
     return vec4(noise,noise,noise,1);
 }
 
-vec4 blackWhiteUpipolar(float noise){
-    return vec4(noise,noise,noise,1);
-}
-
-vec4 blackWhiteUpipolarMold(float noise){
-    return vec4(1-noise,1-noise,1-noise,1);
-}
-
 
 void main()
 {
     vec3 uv = vec3(TexCoord * graphScale, time);
 
-    float noise1 = perlinNoise(uv,1,0)/2+perlinNoise(uv,2,1)/2;
-    float noise2=perlinNoise(uv,4,2);
-    float noise=cube(override2(noise1));
+    /**if(animate){
+        uv.x += time;
+        uv.y += time;
+//        uv.z += time * 0.5; // 添加Z轴动画
+    }*/
+
+    float noise1 = (perlinNoise(uv,1,0)+perlinNoise(uv,2,1))/2;
+    float noiseLadder =noise1*4;
+    float i=floor(noiseLadder)/4;
+    float f=(1-fract(noiseLadder))/4;
+    float noise=i+f;
+//    float noise=perlinNoise(uv,0);
 
     FragColor = blackWhite(noise);
 

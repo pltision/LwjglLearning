@@ -1,34 +1,32 @@
-package test;
+package yee.pltision.toy.blackhome;
 
-import org.lwjgl.*;
-import org.lwjgl.glfw.*;
-import org.lwjgl.opengl.*;
+import org.lwjgl.BufferUtils;
+import org.lwjgl.Version;
+import org.lwjgl.glfw.GLFWErrorCallback;
+import org.lwjgl.glfw.GLFWVidMode;
+import org.lwjgl.opengl.GL;
 import org.lwjgl.stb.STBImageWrite;
-import org.lwjgl.system.*;
+import org.lwjgl.system.MemoryStack;
 import yee.pltision.glfmhelper.globject.Shader;
 import yee.pltision.glfmhelper.globject.ShaderProgram;
 import yee.pltision.glfmhelper.globject.Texture;
 
 import java.io.IOException;
-import java.nio.*;
-import java.util.Random;
+import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.*;
 import static org.lwjgl.opengl.GL30.*;
-import static org.lwjgl.system.MemoryUtil.*;
+import static org.lwjgl.system.MemoryUtil.NULL;
 
-public class GPUNoiseGenerator {
+public class BlackHome {
     // 窗口和纹理参数
     private static final int WIDTH = 1024;
     private static final int HEIGHT = 1024;
-
-    private static final int SAVE_WIDTH = 2048;
-    private static final int SAVE_HEIGHT = 2048;
-
-    private static final String OUTPUT_FILE = "gpu_perlin_noise.png";
+    private final String outputImage = "gpu_perlin_noise.png";
 
     // 窗口句柄
     private long window;
@@ -36,14 +34,10 @@ public class GPUNoiseGenerator {
     // OpenGL资源
     private ShaderProgram shaderProgram;
     private int vao, vbo, ebo;
-    private int fbo;
-
-    // 保存用
-//    private int saveFbo;
-    private Texture saveTexture;
+    private int fbo, noiseTexture;
 
     // 噪声参数
-    private float graphScale = 1.0f;
+    private float noiseScale = 8.0f;
     private float time = 0.0f;
     private boolean animate = false;
 
@@ -69,7 +63,7 @@ public class GPUNoiseGenerator {
         }
     }
 
-    private void init() {
+    private void init() throws IOException {
         // 设置错误回调
         GLFWErrorCallback.createPrint(System.err).set();
 
@@ -90,7 +84,7 @@ public class GPUNoiseGenerator {
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
 
         // 创建窗口
-        window = glfwCreateWindow(WIDTH, HEIGHT, "Make Some Noise!", NULL, NULL);
+        window = glfwCreateWindow(WIDTH, HEIGHT, "OwO", NULL, NULL);
         if (window == NULL) {
             throw new RuntimeException("无法创建GLFW窗口");
         }
@@ -102,19 +96,19 @@ public class GPUNoiseGenerator {
             }
             if (key == GLFW_KEY_S && action == GLFW_RELEASE) {
                 saveNoiseTexture();
-                System.out.println("噪声已保存到: " + OUTPUT_FILE);
+                System.out.println("噪声已保存到: " + outputImage);
             }
             if (key == GLFW_KEY_SPACE && action == GLFW_RELEASE) {
                 animate = !animate;
                 System.out.println("动画 " + (animate ? "开启" : "关闭"));
             }
             if (key == GLFW_KEY_UP && action == GLFW_RELEASE) {
-                graphScale /= 2f;
-                System.out.println("噪声缩放: " + graphScale);
+                noiseScale /= 1.2f;
+                System.out.println("噪声缩放: " + noiseScale);
             }
             if (key == GLFW_KEY_DOWN && action == GLFW_RELEASE) {
-                graphScale *= 2f;
-                System.out.println("噪声缩放: " + graphScale);
+                noiseScale *= 1.2f;
+                System.out.println("噪声缩放: " + noiseScale);
             }
         });
 
@@ -152,15 +146,15 @@ public class GPUNoiseGenerator {
         initQuad();
         initFBO();
 
-        initRandom();
+        initUniverseTexture();
     }
 
     private void initShaders() {
         // 创建着色器程序
         try {
             shaderProgram=ShaderProgram.create().linkAndDelete(
-                    Shader.create(GL_VERTEX_SHADER).readResource("noise/noise.vs.glsl"),
-                    Shader.create(GL_FRAGMENT_SHADER).readResource("noise/noise.fs.glsl")
+                    Shader.create(GL_VERTEX_SHADER).readResource("toy/blackhome.vs.glsl"),
+                    Shader.create(GL_FRAGMENT_SHADER).readResource("toy/blackhome.fs.glsl")
             );
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -173,10 +167,10 @@ public class GPUNoiseGenerator {
         // 全屏四边形顶点数据
         float[] vertices = {
                 // 位置          // 纹理坐标
-                -1.0f, -1.0f,  0.0f, 0.0f,
-                1.0f, -1.0f,  1.0f, 0.0f,
-                1.0f,  1.0f,  1.0f, 1.0f,
-                -1.0f,  1.0f,  0.0f, 1.0f
+                -1.0f, -1.0f,  0.0f, 1.0f,
+                1.0f, -1.0f,  1.0f, 1.0f,
+                1.0f,  1.0f,  1.0f, 0.0f,
+                -1.0f,  1.0f,  0.0f, 0.0f,
         };
 
         // 索引数据
@@ -212,12 +206,17 @@ public class GPUNoiseGenerator {
 
     private void initFBO() {
         // 创建噪声纹理
-        saveTexture=Texture.createEmpty(SAVE_WIDTH,SAVE_HEIGHT);
+        noiseTexture = glGenTextures();
+        glBindTexture(GL_TEXTURE_2D, noiseTexture);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, WIDTH, HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glBindTexture(GL_TEXTURE_2D, 0);
 
         // 创建FBO
         fbo = glGenFramebuffers();
         glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, saveTexture.getTexture(), 0);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, noiseTexture, 0);
 
         if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
             throw new RuntimeException("FBO初始化失败");
@@ -226,50 +225,26 @@ public class GPUNoiseGenerator {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
-    private void initRandom(){
-        int randomTexturesUniform=glGetUniformLocation(shaderProgram.getShaderProgram(),"randomTextures");
-        int texturesLength=10;
+    private void initUniverseTexture() throws IOException {
+        // 加载宇宙贴图
+        Texture universeTexture=Texture.read("toy/the_rod_with_lamp.png");
 
-        int size= 256;
-
-        // 生成随机噪声纹理
-        int[] textures=new int[texturesLength];
-        int[] textureBuffer = new int[size*size*size];
-        Random random=new Random(330);
-
-//        System.out.println(texturesLength);
-        glGenTextures(textures);
-        for (int i = 0; i < texturesLength; i++) {
-//            System.out.println(textures[i]);
-            glBindTexture(GL_TEXTURE_3D, textures[i]);
-            fillRandomBuffer(textureBuffer,random);
-            glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA, size, size, size, 0, GL_RGBA, GL_UNSIGNED_BYTE, textureBuffer);
-            glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-            glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-            glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_REPEAT);
-            glUniform1i(randomTexturesUniform+i,textures[i]);
-        }
-
-
+        // 将Universe.png绑定到uniform变量
+        int universeTextureUniform = glGetUniformLocation(shaderProgram.getShaderProgram(), "universe");
+        glUniform1i(universeTextureUniform, universeTexture.getTexture());
     }
 
-    void fillRandomBuffer(int[] buffer,Random random){
-        for(int i=0;i<buffer.length;i++){
-            buffer[i]=random.nextInt()|(0xff<<24);
-        }
-    }
+
 
     private void loop() {
         // 渲染循环
         while (!glfwWindowShouldClose(window)) {
             // 计算时间
             if (animate) {
-                time += 0.00001f;
+                time += 0.0001f;
             }
 
-//            graphScale*=1.0001f;
+//            noiseScale*=1.0001f;
 
             // 清除屏幕
             glClear(GL_COLOR_BUFFER_BIT);
@@ -278,7 +253,7 @@ public class GPUNoiseGenerator {
             shaderProgram.use();
 
             // 更新uniform变量
-            glUniform1f(glGetUniformLocation(shaderProgram.getShaderProgram(), "graphScale"), graphScale);
+            glUniform1f(glGetUniformLocation(shaderProgram.getShaderProgram(), "noiseScale"), noiseScale);
             glUniform1f(glGetUniformLocation(shaderProgram.getShaderProgram(), "time"), time);
             glUniform1i(glGetUniformLocation(shaderProgram.getShaderProgram(), "animate"), animate ? 1 : 0);
 
@@ -295,26 +270,26 @@ public class GPUNoiseGenerator {
     private void saveNoiseTexture() {
         // 绑定FBO并渲染
         glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-        glViewport(0, 0, SAVE_WIDTH, SAVE_HEIGHT);
+        glViewport(0, 0, WIDTH, HEIGHT);
         shaderProgram.use();
-        glUniform1f(glGetUniformLocation(shaderProgram.getShaderProgram(), "graphScale"), graphScale);
+        glUniform1f(glGetUniformLocation(shaderProgram.getShaderProgram(), "noiseScale"), noiseScale);
         glUniform1f(glGetUniformLocation(shaderProgram.getShaderProgram(), "time"), time);
         glUniform1i(glGetUniformLocation(shaderProgram.getShaderProgram(), "animate"), 0);
         glBindVertexArray(vao);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
         // 读取像素数据
-        ByteBuffer pixels = BufferUtils.createByteBuffer(SAVE_WIDTH * SAVE_HEIGHT * 4);
-        glReadPixels(0, 0, SAVE_WIDTH, SAVE_HEIGHT, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+        ByteBuffer pixels = BufferUtils.createByteBuffer(WIDTH * HEIGHT * 4);
+        glReadPixels(0, 0, WIDTH, HEIGHT, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 
         // 保存为PNG
         STBImageWrite.stbi_flip_vertically_on_write(true);
         boolean success = STBImageWrite.stbi_write_png(
-                OUTPUT_FILE,
-                SAVE_WIDTH, SAVE_HEIGHT,
+                outputImage,
+                WIDTH, HEIGHT,
                 4,
                 pixels,
-                SAVE_WIDTH * 4
+                WIDTH * 4
         );
 
         if (!success) {
@@ -323,8 +298,6 @@ public class GPUNoiseGenerator {
 
         // 解绑FBO
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        // 关键修复：将视口重置为窗口原始尺寸（WIDTH x HEIGHT）
-        glViewport(0, 0, WIDTH, HEIGHT);
     }
 
     private void cleanup() {
@@ -332,12 +305,12 @@ public class GPUNoiseGenerator {
         glDeleteVertexArrays(vao);
         glDeleteBuffers(vbo);
         glDeleteBuffers(ebo);
-        saveTexture.delete();
+        glDeleteTextures(noiseTexture);
         glDeleteFramebuffers(fbo);
         shaderProgram.delete();
     }
 
     public static void main(String[] args) {
-        new GPUNoiseGenerator().run();
+        new BlackHome().run();
     }
 }
