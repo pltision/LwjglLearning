@@ -2,6 +2,8 @@ package yee.pltision.game.client.level;
 
 import org.lwjgl.opengl.GL32;
 import org.lwjgl.system.MemoryUtil;
+import yee.pltision.game.client.level.tile.GpuChunkObjects;
+import yee.pltision.game.client.level.tile.RenderingTileManger;
 import yee.pltision.glfmhelper.globject.VertexBuffer;
 import yee.pltision.glfmhelper.globject.VertexProperties;
 import yee.pltision.glfmhelper.shape.UvGetters;
@@ -20,6 +22,7 @@ public class TilesRenderer {
     int sizeSquared;
     int[] chunkGridBuffer;
 
+
     public void init(){
         initPackedVertexBuffer(0);
     }
@@ -29,24 +32,12 @@ public class TilesRenderer {
         VertexBuffer chunkGrid=VertexBuffer.create();
 
 
-
         chunkGrid.data(IntBuffer.wrap(chunkGridBuffer),chunkGridProperties, GL32.GL_DYNAMIC_DRAW);
 
     }
 
-    public void initChunkBuffer(){
-        VertexProperties chunkGridProperties=new VertexProperties(floats(2));
-        VertexBuffer chunkGrid=VertexBuffer.create();
-        {
-            FloatBuffer buffer = MemoryUtil.memAllocFloat(chunkGridProperties.floatSizeOf(RenderingChunkData.DATA_SIZE));
-            for(int i=0;i<RenderingChunkData.DATA_SIZE;i++){
-                for (int j=0;j<RenderingChunkData.DATA_SIZE;j++){
-                    applyQuad(buffer,j,i);
-                }
-            }
-            chunkGrid.data(buffer, chunkGridProperties, GL32.GL_DYNAMIC_DRAW);
-            MemoryUtil.memFree(buffer);
-        }
+    public void initPosBuffer(){
+
 
         VertexProperties quadUvProperties=new VertexProperties(floats(2));
         VertexBuffer quadUv=VertexBuffer.create();
@@ -61,12 +52,7 @@ public class TilesRenderer {
 
     }
 
-    public void applyQuad(FloatBuffer buf,float x,float y){
-        buf.put(x).put(y);
-        buf.put(x+1).put(y);
-        buf.put(x+1).put(y+1);
-        buf.put(x).put(y+1);
-    }
+
 
     public void initPackedVertexBuffer(int radius){
         this.radius=radius;

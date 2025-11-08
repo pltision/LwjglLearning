@@ -1,19 +1,13 @@
 package test.chunk;
 
-import org.joml.Vector2i;
-
 interface Level {
     Chunk getChunk(int x,int y);
-
-    default Chunk getChunk(Vector2i pos){
-        return getChunk(pos.x,pos.y);
-    }
 
     static Level createLevel(){
         return Chunk::new;
     }
 
-    static Level createWithCache(ChunkCache cache){
+    static Level createWithCache(SlideCache cache){
         return ((x, y) -> cache.level.getChunk(x, y));
     }
 }

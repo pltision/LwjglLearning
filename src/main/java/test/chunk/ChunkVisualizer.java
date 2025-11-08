@@ -11,6 +11,7 @@ import java.util.function.Consumer;
 class ChunkVisualizer {
     private static final int RECT_SIZE = 60; // 每个区块的显示大小
 
+
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame("区块可视化测试");
@@ -21,7 +22,9 @@ class ChunkVisualizer {
             mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
 
-            ChunkCache cache = new ChunkCache(2, new Vector2i(0, 0), Level.createLevel());
+            Level level=Level.createLevel();
+
+            SlideCache<Chunk> cache = new SlideCache<Chunk>(2, new Vector2i(0, 0));
 
 
             // 创建第一个面板
@@ -33,7 +36,7 @@ class ChunkVisualizer {
             // 只有第一个面板可以移动，并同步到两个面板
             panel1.setApplyMovePlayer(pos -> {
                 cache.setPosition(pos);  // 更新缓存
-                cache.fill();
+//                cache.fill();
                 panel2.updatePlayerPosition(pos);
                 panel1.updatePlayerPosition(pos); // 同步移动
             });
@@ -49,6 +52,10 @@ class ChunkVisualizer {
             frame.setLocationRelativeTo(null);
             frame.setVisible(true);
         });
+    }
+
+    void updateCache(SlideCache<Chunk> cache,Level level){
+
     }
 }
 
@@ -180,14 +187,16 @@ class ChunkVisualizerPanel extends JPanel {
 }
 
 class CacheVisualizerPanel extends JPanel {
-    private final ChunkCache cache;
+    private final SlideCache<Chunk> cache;
     private final Vector2i player;
     private final Vector2i prePos;
 
     private int size;
     private int rectSize;
 
-    CacheVisualizerPanel(ChunkCache cache,int rectSize) {
+    Level level;
+
+    CacheVisualizerPanel(SlideCache<Chunk> cache, int rectSize) {
         this.cache = cache;
         this.size = cache.getSize();
         this.player = new Vector2i();
@@ -225,14 +234,14 @@ class CacheVisualizerPanel extends JPanel {
             for (int y = 0; y < size; y++) {
 
                 // 从缓存的数组获取区块
-                Chunk chunk = cache.viewCacheArray(x, y);
+                SlideCache.CacheEntry<Chunk> chunk = cache.viewCacheArray(x, y);
 
                 // 计算绘制位置
                 int drawX = x * rectSize;
                 int drawY = y * rectSize;
 
                 // 绘制区块背景
-                if(chunk!=null&&chunk.isNew) {
+                if(chunk.element!=null) {
                     g2.setColor(new Color(200, 255, 200));
                 }
                 else{
@@ -246,7 +255,7 @@ class CacheVisualizerPanel extends JPanel {
 
                 // 绘制区块坐标
                 g2.setColor(Color.DARK_GRAY);
-                g2.drawString(chunk!=null? chunk.x + "," + chunk.y:"null",
+                g2.drawString(chunk.element!=null? chunk.element.x + "," + chunk.element.y:"null",
                         drawX + 5,
                         drawY + rectSize / 2);
             }
@@ -254,16 +263,14 @@ class CacheVisualizerPanel extends JPanel {
 
         // 绘制玩家上一个位置标记（淡红色）
         Vector2i cachePos=new Vector2i();
-        cache.mapToCacheIndex(prePos,cachePos);
-        int prevDrawX = cachePos.x * rectSize + rectSize / 2;
-        int prevDrawY = cachePos.y * rectSize + rectSize / 2;
+        int prevDrawX = cache.mapToCacheIndex(prePos.x) * rectSize + rectSize / 2;
+        int prevDrawY = cache.mapToCacheIndex(prePos.y) * rectSize + rectSize / 2;
         g2.setColor(new Color(255, 100, 100, 100)); // 淡红色，带透明度
         g2.fillOval(prevDrawX - 6, prevDrawY - 6, 12, 12);
 
         // 绘制玩家当前位置标记（红色）
-        cache.mapToCacheIndex(player,cachePos);
-        int playerDrawX = cachePos.x * rectSize + rectSize / 2;
-        int playerDrawY = cachePos.y * rectSize + rectSize / 2;
+        int playerDrawX = cache.mapToCacheIndex(player.x) * rectSize + rectSize / 2;
+        int playerDrawY = cache.mapToCacheIndex(player.y) * rectSize + rectSize / 2;
         g2.setColor(Color.RED);
         g2.fillOval(playerDrawX - 6, playerDrawY - 6, 12, 12);
     }

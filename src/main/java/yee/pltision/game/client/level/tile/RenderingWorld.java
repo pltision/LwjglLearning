@@ -1,4 +1,4 @@
-package yee.pltision.game.client.level;
+package yee.pltision.game.client.level.tile;
 
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
@@ -6,6 +6,7 @@ import org.joml.Vector3d;
 import org.joml.Vector3f;
 import yee.pltision.game.Camera;
 import yee.pltision.game.client.EntityRenderer;
+import yee.pltision.game.client.level.ClientLevel;
 import yee.pltision.game.client.resource.Shaders;
 import yee.pltision.game.client.resource.Shapes;
 import yee.pltision.game.world.entity.PuamilaEntity;

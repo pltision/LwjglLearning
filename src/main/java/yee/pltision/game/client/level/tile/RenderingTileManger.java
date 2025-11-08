@@ -1,4 +1,4 @@
-package yee.pltision.game.client.level;
+package yee.pltision.game.client.level.tile;
 
 import org.jetbrains.annotations.NotNull;
 import yee.pltision.game.client.resource.RenderingTile;

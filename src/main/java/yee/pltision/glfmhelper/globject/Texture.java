@@ -5,7 +5,9 @@ import org.lwjgl.system.MemoryStack;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
+import java.util.Objects;
 
+import static java.util.Objects.requireNonNull;
 import static org.lwjgl.demo.util.IOUtils.ioResourceToByteBuffer;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.stb.STBImage.stbi_image_free;
@@ -57,6 +59,8 @@ public class Texture implements GLObject {
             ByteBuffer data = stbi_load_from_memory(
                     ioResourceToByteBuffer(resource, 1024), width, height, components,
                     4);
+
+            Objects.requireNonNull(data, "Failed to load image: " + resource);
             Texture texture=Texture.create(GL_TEXTURE_2D);
             texture.bind();
             texture.setFilter(GL_NEAREST);
