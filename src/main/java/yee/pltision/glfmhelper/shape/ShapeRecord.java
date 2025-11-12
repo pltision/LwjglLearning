@@ -2,7 +2,6 @@ package yee.pltision.glfmhelper.shape;
 
 import org.intellij.lang.annotations.MagicConstant;
 import org.lwjgl.opengl.GL11;
-import yee.pltision.glfmhelper.globject.PackedVertexBuffer;
 import yee.pltision.glfmhelper.globject.ShaderProgram;
 import yee.pltision.glfmhelper.globject.VertexArray;
 
@@ -33,7 +32,7 @@ public class ShapeRecord {
      *  {@link GL11#GL_POLYGON}
      */
     public ShapeRecord(
-            VertexArray vertexBuffer,
+            VertexArray vertexArray,
             @MagicConstant(intValues = {
                     GL_POINTS,
                     GL_LINES,
@@ -49,7 +48,7 @@ public class ShapeRecord {
             int drawArrayCount,
             ShaderProgram shaderProgram)
     {
-        this.vertexBuffer = vertexBuffer;
+        this.vertexBuffer = vertexArray;
         this.drawArrayType = drawArrayType;
         this.drawArrayStart = drawArrayStart;
         this.drawArrayCount = drawArrayCount;
@@ -68,7 +67,6 @@ public class ShapeRecord {
      * 执行渲染操作，调用 OpenGL 的绘制函数
      */
     public void render() {
-        initRender();
         glDrawArrays(drawArrayType, drawArrayStart, drawArrayCount);
     }
 

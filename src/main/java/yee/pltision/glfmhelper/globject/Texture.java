@@ -7,7 +7,6 @@ import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.Objects;
 
-import static java.util.Objects.requireNonNull;
 import static org.lwjgl.demo.util.IOUtils.ioResourceToByteBuffer;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.stb.STBImage.stbi_image_free;

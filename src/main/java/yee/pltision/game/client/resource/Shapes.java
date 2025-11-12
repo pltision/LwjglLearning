@@ -3,7 +3,6 @@ package yee.pltision.game.client.resource;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.system.MemoryUtil;
-import yee.pltision.glfmhelper.globject.PackedVertexBuffer;
 import yee.pltision.glfmhelper.globject.ShaderProgram;
 import yee.pltision.glfmhelper.globject.VertexArray;
 import yee.pltision.glfmhelper.globject.VertexProperties;

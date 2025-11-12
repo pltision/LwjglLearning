@@ -15,6 +15,23 @@ public interface ClientLevel extends Level {
         return false;
     }
 
+    default void setChanged(Vector2i chunkPos){
+        setChanged(chunkPos.x,chunkPos.y);
+    }
+
+    default void setChanged(int chunkX,int chunkY){
+        //Unmodifiable
+    }
+
+    default void unsetChanged(Vector2i chunkPos){
+        unsetChanged(chunkPos.x,chunkPos.y);
+    }
+
+    default void unsetChanged(int chunkX, int chunkY){
+        //Unmodifiable
+    }
+
+
     @FunctionalInterface
     interface TileFunction {
         int getTile(int x, int y);
@@ -34,4 +51,10 @@ public interface ClientLevel extends Level {
             }
         };
     }
+
+    default boolean isValid(int chunkX,int chunkY){
+        return true;
+    }
+
+
 }

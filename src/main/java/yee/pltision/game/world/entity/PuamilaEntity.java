@@ -11,6 +11,11 @@ import yee.pltision.game.client.resource.Textures;
 import yee.pltision.glfmhelper.MatrixStack;
 import yee.pltision.glfmhelper.UniformHelper;
 
+import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
+import static org.lwjgl.opengl.GL13.glActiveTexture;
+import static org.lwjgl.opengl.GL20.glUseProgram;
+import static org.lwjgl.opengl.GL30.glBindVertexArray;
+
 public class PuamilaEntity implements Player {
 
     Vector3d pos=new Vector3d();
@@ -30,9 +35,15 @@ public class PuamilaEntity implements Player {
         return new EntityRenderer<PuamilaEntity>() {
             @Override
             public void render(MatrixStack matrixStack, Camera camera) {
+                glActiveTexture(GL_TEXTURE0);
                 Textures.PUAMILA.bind();
+                Shapes.PUAMILA.initRender();
                 UniformHelper.matrix4f(matrixStack.push().rotate(new Quaternionf().div(camera.getZRot())).rotateX(-camera.xRot), Shaders.TEXTURE_SHADER_MATRIX);
                 Shapes.PUAMILA.render();
+//                glBindTexture(GL_TEXTURE_2D,0);
+                matrixStack.pop();
+                glBindVertexArray(0);
+                glUseProgram(0);
             }
 
         };

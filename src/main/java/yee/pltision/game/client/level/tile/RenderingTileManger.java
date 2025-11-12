@@ -5,7 +5,7 @@ import yee.pltision.game.client.resource.RenderingTile;
 import yee.pltision.game.world.tile.TileMapping;
 import yee.pltision.game.world.tile.TileState;
 
-import java.util.*;
+import java.util.Arrays;
 
 public class RenderingTileManger {
 
@@ -43,6 +43,10 @@ public class RenderingTileManger {
 
     public int prioritied(int tileIndex){
         return priority[tileIndex];
+    }
+
+    public int texture(int priority){
+        return texture[priority];
     }
 
 

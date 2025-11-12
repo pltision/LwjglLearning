@@ -10,11 +10,11 @@ import yee.pltision.game.client.level.ClientLevel;
 import yee.pltision.game.client.resource.Shaders;
 import yee.pltision.game.client.resource.Shapes;
 import yee.pltision.game.world.entity.PuamilaEntity;
-import yee.pltision.game.world.tile.*;
+import yee.pltision.game.world.tile.WorldAssets;
 import yee.pltision.glfmhelper.MatrixStack;
+import yee.pltision.glfmhelper.UniformHelper;
 import yee.pltision.math.LerpFactor;
 import yee.pltision.math.Mth;
-import yee.pltision.glfmhelper.UniformHelper;
 
 public class RenderingWorld  {
     public WorldAssets assets;
@@ -36,18 +36,13 @@ public class RenderingWorld  {
 
     public ClientLevel level;
 
-
-//    TurfGrid grid= (x, y) -> TURFS[(Math.abs(x)  + Math.abs(y) ) % TURFS.length];
-//    TurfGrid grid= (x, y) -> TURFS[(x*x  + y*y ) % TURFS.length];   //它居然无限平铺了，简直神奇
-//    TurfGrid grid= (x, y) -> {
-//        int linear=Math.abs(x) + Math.abs(y);
-//        return TURFS[linear==0?0:( ((x * x + y * y)/TURFS.length % linear) * TURFS.length / linear )];
-//    };
+    public TileChunksRenderer tileChunksRenderer;
 
     public static final float ROTATE_CLOD_DOWN_TIME=1/0.25f;
     public void update(float passedTime){
         camera.update(passedTime);
         updateCenter(entity.getPosition());
+        tileChunksRenderer.update(entity.getPosition());
         rotateCloddown-=passedTime*ROTATE_CLOD_DOWN_TIME;
     }
 
@@ -73,6 +68,9 @@ public class RenderingWorld  {
         level = ClientLevel.functionGrid(assets.TILE_MAPPING,
                 (x, y)->tiles[(int) Mth.qSqrt(x*x+y*y)% tiles.length]
         );
+
+        tileChunksRenderer=new TileChunksRenderer(level,tileManger);
+
     }
 
 
@@ -80,6 +78,7 @@ public class RenderingWorld  {
 
     public void render(){
         renderEntity(renderer,entity.getPosition(),camera);
+        tileChunksRenderer.tileChunksRenderGpu.render(camera, entity.getPosition(),tileManger);
         renderTurfs(camera.getStartMatrixStack().push(m->m.translate(relatived)),turfX,turfY);
 
     }
@@ -97,20 +96,20 @@ public class RenderingWorld  {
     }
 
 
-
     public void renderTurfs(MatrixStack matrixStack,int x,int y){
 
-        int radius=10;
+        int radius=15;
         Matrix4f upMatrix=matrixStack.push();
 
         Vector3f move=new Vector3f();
         Matrix4f matrix=new Matrix4f();
 
+        Shapes.TURF.initRender();
+
         for(int i=-radius+x;i<radius+x;i++){
             for(int j=-radius+y;j<radius+y;j++){
                 move.set(i,j,0);
                 matrix.set(upMatrix)/*.scale(0.2f)*/.translate(move);
-
                 level.getTile(i,j).tile().getRendering().texture().bind();
                 UniformHelper.matrix4f(matrix, Shaders.TEXTURE_SHADER_MATRIX);
                 Shapes.TURF.render();

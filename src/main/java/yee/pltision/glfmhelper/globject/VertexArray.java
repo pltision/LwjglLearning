@@ -52,22 +52,33 @@ public class VertexArray implements GLObject {
         for (Pair<VertexBuffer, VertexProperties> pair : pairs) {
             // 记录每个元素的字节偏移量
             int byteOffset = 0;
-            
+
             // 绑定当前顶点缓冲区
             pair.component1().bind();
 
             for (VertexProperties.Element element : pair.component2().elements) {
-                glVertexAttribPointer(location, element.count, element.type.type, false, pair.component2().size, byteOffset/*表示当前Element在当前VBO中的偏移量*/);
                 glEnableVertexAttribArray(location);
+                if(element.type==GLDataType.INT){
+                    glVertexAttribIPointer(location, element.count, element.type.type, pair.component2().size, byteOffset);
+                }
+                else {
+                    glVertexAttribPointer(location, element.count, element.type.type, false, pair.component2().size, byteOffset);
+                }
+//                glVertexAttribPointer(location, element.count, element.type.type, false, pair.component2().size, byteOffset/*表示当前Element在当前VBO中的偏移量*/);
+
                 byteOffset += element.count * element.type.size;
                 location++;
             }
         }
     }
 
+    public static <A,B> Pair<A,B> pair(A a,B b){
+        return new Pair<>(a,b);
+    }
+
     public static VertexArray createSimple(VertexProperties properties, FloatBuffer buf){
         VertexBuffer buffer=VertexBuffer.create();
-        buffer.data(buf,properties,GL_STATIC_DRAW);
+        buffer.data(buf, GL_STATIC_DRAW);
         VertexArray vertexArray=VertexArray.create();
         vertexArray.bindBuffer(buffer,properties);
         return vertexArray;

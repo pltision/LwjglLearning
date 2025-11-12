@@ -1,16 +1,19 @@
 package test;
 
-import org.lwjgl.*;
-import org.lwjgl.glfw.*;
-import org.lwjgl.opengl.*;
+import org.lwjgl.BufferUtils;
+import org.lwjgl.Version;
+import org.lwjgl.glfw.GLFWErrorCallback;
+import org.lwjgl.glfw.GLFWVidMode;
+import org.lwjgl.opengl.GL;
 import org.lwjgl.stb.STBImageWrite;
-import org.lwjgl.system.*;
+import org.lwjgl.system.MemoryStack;
 import yee.pltision.glfmhelper.globject.Shader;
 import yee.pltision.glfmhelper.globject.ShaderProgram;
 import yee.pltision.glfmhelper.globject.Texture;
 
 import java.io.IOException;
-import java.nio.*;
+import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 import java.util.Random;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -18,7 +21,7 @@ import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.*;
 import static org.lwjgl.opengl.GL30.*;
-import static org.lwjgl.system.MemoryUtil.*;
+import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class GPUNoiseGenerator {
     // 窗口和纹理参数

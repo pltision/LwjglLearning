@@ -9,6 +9,7 @@ import org.lwjgl.system.MemoryStack;
 import yee.pltision.game.client.level.tile.RenderingWorld;
 
 import java.nio.IntBuffer;
+import java.text.DecimalFormat;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
@@ -119,6 +120,13 @@ public class ClientWindow {
         Vector3f right=new Vector3f(8f,0,0);
         Vector3f compute=new Vector3f();
 
+
+        final int FRAME_TIME_COUNT=1000;
+        final DecimalFormat FPS_FORMAT = new DecimalFormat("0.0");
+        int frameTimeIndex=0;
+        double frameTimeSum=0;
+        double frameTimeMax=0;
+
         //游戏上一帧计算用了多久
         float passedTime=0; //初始值应该是每帧的时间，但因为我没有限制帧率，所以为0
 
@@ -168,6 +176,19 @@ public class ClientWindow {
             glfwPollEvents();
 
             passedTime= (float) (glfwGetTime()-startTime);
+
+            frameTimeSum+=passedTime;
+            frameTimeMax=Math.max(frameTimeMax,passedTime);
+            frameTimeIndex++;
+            if(frameTimeIndex>=FRAME_TIME_COUNT){
+                System.out.println(
+                        "FPS: "+FPS_FORMAT.format(FRAME_TIME_COUNT/frameTimeSum)
+                        +"\t Max: "+frameTimeMax
+                );
+                frameTimeSum=0;
+                frameTimeMax=0;
+                frameTimeIndex=0;
+            }
         }
     }
 

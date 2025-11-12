@@ -1,9 +1,5 @@
 package yee.pltision.glfmhelper.globject;
 
-import java.nio.FloatBuffer;
-
-import static org.lwjgl.opengl.GL15.GL_STATIC_DRAW;
-
 public class VertexProperties {
 
     public static class Element {
@@ -32,8 +28,12 @@ public class VertexProperties {
 
     public int floatSizeOf(int vertexCount){
         if(floatSize<0)
-            throw new UnsupportedOperationException("Element are not all are float!");
+            throw new UnsupportedOperationException("Element are not all are 4 byte!");
         return floatSize*vertexCount;
+    }
+
+    public int intSizeOf(int vertexCount){
+        return floatSizeOf(vertexCount);
     }
 
     public int byteSizeOf(int vertexCount) {
@@ -50,9 +50,9 @@ public class VertexProperties {
     public static int computeFloatSize(Element[] elements){
         int sum=0;
         for (Element element : elements) {
-            sum += element.count * element.type.size;
-            if(element.type!=GLDataType.FLOAT)
+            if((element.type.size&0b11)!=0)
                 return -1;
+            sum += element.count * element.type.size /4;
         }
         return sum;
     }
@@ -74,7 +74,7 @@ public class VertexProperties {
     }
 
     public static Element ints(int count) {
-        return element(GLDataType.FLOAT, count);
+        return element(GLDataType.INT, count);
     }
 
     public static Element floats(int count) {
@@ -82,7 +82,7 @@ public class VertexProperties {
     }
 
     public static Element doubles(int count) {
-        return element(GLDataType.FLOAT, count);
+        return element(GLDataType.DOUBLE, count);
     }
 
     public static Element pos() {

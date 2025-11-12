@@ -1,6 +1,6 @@
 #version 330 core
 
-in vec4 fragmentPos;
+//in vec4 fragmentPos;
 in vec4 fragmentColor;
 in vec2 fragmentUV;
 
