@@ -6,7 +6,7 @@ import yee.pltision.glfmhelper.globject.Texture;
 import java.io.IOException;
 
 public interface Textures {
-    Texture GRASS = readTexture("game/texture/草地.png");
+//    Texture GRASS = readTexture("game/texture/草地.png");
     Texture PUAMILA = readTexture("game/texture/puamila.png");
     Texture UV_TEST = readTexture("game/texture/uv_test.png");
 

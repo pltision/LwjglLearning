@@ -147,11 +147,11 @@ public class TileChunksRenderGpu {
         chunkGridTexCoord =VertexBuffer.create();
         {
             FloatBuffer buffer = MemoryUtil.memAllocFloat(chunkGridTexCoordProperties.floatSizeOf(VERTEX_COUNT));
-            Function<Integer, Vector2f> uvGetter= UvGetters.full();
-            for(int i = 0; i< SHAPE_COUNT; i++){
-                for (int j = 0; j< SHAPE_VERTEX_COUNT; j++){
-                    Vector2f uv=uvGetter.apply(j);
-                    buffer.put(uv.x).put(uv.y);
+            Vector2f origin=new Vector2f(0,1);
+            Vector2f unit=new Vector2f(1f/CHUNK_TILE_SIZE,-1f/CHUNK_TILE_SIZE);
+            for(int y = 0; y< CHUNK_TILE_SIZE; y++){
+                for (int x = 0; x< CHUNK_TILE_SIZE; x++){
+                    applyUv(buffer,origin,unit,x,y);
                 }
             }
             buffer.flip();
@@ -165,6 +165,13 @@ public class TileChunksRenderGpu {
         buf.put(x+1).put(y);
         buf.put(x+1).put(y+1);
         buf.put(x).put(y+1);
+    }
+
+    public void applyUv(FloatBuffer buf,Vector2f origin,Vector2f unit,float x,float y){
+        buf.put(origin.x+unit.x*x).put(origin.y+unit.y*y);
+        buf.put(origin.x+unit.x*(x+1)).put(origin.y+unit.y*y);
+        buf.put(origin.x+unit.x*(x+1)).put(origin.y+unit.y*(y+1));
+        buf.put(origin.x+unit.x*x).put(origin.y+unit.y*(y+1));
     }
 
 

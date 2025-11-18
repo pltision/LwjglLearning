@@ -6,7 +6,7 @@ import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
-import yee.pltision.game.client.level.tile.RenderingWorld;
+import yee.pltision.game.client.level.RenderingWorld;
 
 import java.nio.IntBuffer;
 import java.text.DecimalFormat;
@@ -175,20 +175,27 @@ public class ClientWindow {
             glfwSwapBuffers(window); // swap the color buffers
             glfwPollEvents();
 
-            passedTime= (float) (glfwGetTime()-startTime);
+            try {
+                Thread.sleep(1);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
 
+            //FPS统计
             frameTimeSum+=passedTime;
             frameTimeMax=Math.max(frameTimeMax,passedTime);
             frameTimeIndex++;
             if(frameTimeIndex>=FRAME_TIME_COUNT){
                 System.out.println(
                         "FPS: "+FPS_FORMAT.format(FRAME_TIME_COUNT/frameTimeSum)
-                        +"\t Max: "+frameTimeMax
+                                +"\t Low: "+FPS_FORMAT.format(1/frameTimeMax)
                 );
                 frameTimeSum=0;
                 frameTimeMax=0;
                 frameTimeIndex=0;
             }
+
+            passedTime= (float) (glfwGetTime()-startTime);
         }
     }
 

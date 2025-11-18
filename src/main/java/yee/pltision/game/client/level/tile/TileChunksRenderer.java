@@ -10,16 +10,18 @@ import yee.pltision.utils.foreach.D2Foreach;
 public class TileChunksRenderer {
 
 
-    int viewRadius =1;
+    public int viewRadius =1;
 
 
-    Vector2i playerPos=new Vector2i();
+    public Vector2i playerPos=new Vector2i();
 
-    ClientLevel level;
+    public ClientLevel level;
 
-    TileChunksRenderGpu tileChunksRenderGpu =new TileChunksRenderGpu(viewRadius +2);
+    public TileChunksRenderGpu tileChunksRenderGpu =new TileChunksRenderGpu(viewRadius +2);
 
-    RenderingTileManger renderingTileManger;
+    public RenderingTileManger renderingTileManger;
+
+
 
     public TileChunksRenderer(ClientLevel level, RenderingTileManger renderingTileManger) {
         this.level = level;

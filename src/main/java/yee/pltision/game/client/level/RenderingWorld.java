@@ -1,4 +1,4 @@
-package yee.pltision.game.client.level.tile;
+package yee.pltision.game.client.level;
 
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
@@ -6,7 +6,8 @@ import org.joml.Vector3d;
 import org.joml.Vector3f;
 import yee.pltision.game.Camera;
 import yee.pltision.game.client.EntityRenderer;
-import yee.pltision.game.client.level.ClientLevel;
+import yee.pltision.game.client.level.tile.RenderingTileManger;
+import yee.pltision.game.client.level.tile.TileChunksRenderer;
 import yee.pltision.game.client.resource.Shaders;
 import yee.pltision.game.client.resource.Shapes;
 import yee.pltision.game.world.entity.PuamilaEntity;
@@ -68,6 +69,7 @@ public class RenderingWorld  {
         level = ClientLevel.functionGrid(assets.TILE_MAPPING,
                 (x, y)->tiles[(int) Mth.qSqrt(x*x+y*y)% tiles.length]
         );
+//        level = ClientLevel.functionGrid(assets.TILE_MAPPING, (x, y)->assets.GRASS.id());
 
         tileChunksRenderer=new TileChunksRenderer(level,tileManger);
 
@@ -79,7 +81,7 @@ public class RenderingWorld  {
     public void render(){
         renderEntity(renderer,entity.getPosition(),camera);
         tileChunksRenderer.tileChunksRenderGpu.render(camera, entity.getPosition(),tileManger);
-        renderTurfs(camera.getStartMatrixStack().push(m->m.translate(relatived)),turfX,turfY);
+//        renderTurfs(camera.getStartMatrixStack().push(m->m.translate(relatived)),turfX,turfY);
 
     }
 

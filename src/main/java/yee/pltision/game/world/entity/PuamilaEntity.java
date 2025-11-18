@@ -18,7 +18,7 @@ import static org.lwjgl.opengl.GL30.glBindVertexArray;
 
 public class PuamilaEntity implements Player {
 
-    Vector3d pos=new Vector3d();
+    Vector3d pos=new Vector3d(0,0,0);
 
     @Override
     public void tick() {
